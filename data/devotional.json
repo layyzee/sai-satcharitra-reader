@@ -1,0 +1,99 @@
+{
+  "sayings": [
+    {
+      "number": 1,
+      "text": "Whoever puts their feet on Shirdi soil, their sufferings will come to an end."
+    },
+    {
+      "number": 2,
+      "text": "The wretched and miserable will rise to joy and happiness as soon as they climb the steps of the Samadhi Mandir."
+    },
+    {
+      "number": 3,
+      "text": "I shall be ever active and vigorous even after leaving this earthly body."
+    },
+    {
+      "number": 4,
+      "text": "My tomb shall bless and speak to the needs of my devotees."
+    },
+    {
+      "number": 5,
+      "text": "I shall be active and vigorous even from the tomb."
+    },
+    {
+      "number": 6,
+      "text": "My mortal remains will speak from my tomb."
+    },
+    {
+      "number": 7,
+      "text": "I am ever living to help and guide all who come to me, who surrender to me and who seek refuge in me."
+    },
+    {
+      "number": 8,
+      "text": "If you look to me, I look to you."
+    },
+    {
+      "number": 9,
+      "text": "If you cast your burden on me, I shall surely bear it."
+    },
+    {
+      "number": 10,
+      "text": "If you seek my advice and help, it shall be given to you at once."
+    },
+    {
+      "number": 11,
+      "text": "There shall be no want in the house of my devotee."
+    }
+  ],
+  "aartis": [
+    {
+      "id": "kakad",
+      "name": "Kakad Aarti",
+      "time": "Early Morning (4:30 AM)",
+      "subtitle": "The Morning Awakening Prayer",
+      "meaning": "Devotees gather before sunrise to gently wake Baba with sweet, loving hymns and prayers for spiritual awakening.",
+      "verses": [
+        "Joduniyaa kara charanee thevila maatha | Parisawe vinantee maazhee Sadguru naatha ||",
+        "Aso nasso bhaava aalo tujhiyaa thhaayaa | Kripaa drishtee paahay maazhyaa Sadguru raayaa ||",
+        "Uthaa Panduranga aataa prabhaat samayo paatalaa | Vaishnavaancha mela garudapaaree daatalaa ||",
+        "Uthaa uthaa Shree Saainaathha Guru charana kamala daavaa | Aadhivyaadhi bhawataapa vaaruni taaraa jada jeeva ||"
+      ]
+    },
+    {
+      "id": "madhyan",
+      "name": "Madhyan Aarti",
+      "time": "Noon (12:00 PM)",
+      "subtitle": "The Afternoon Offering",
+      "meaning": "Midday prayer and offering of Naivedya (food) honoring Sai Baba as the supreme divine host.",
+      "verses": [
+        "Gheuniyaa panchaarati karoo Babansi aarati | Karoo Saayeesi aarati ||",
+        "Uthha uthha baa Saayeerama aataa aalelya paahunaa | Bhakteechiya premabhaave baadhilee shidori ||",
+        "Aarati Saayee Baba, saukhyadaataara jeeva | Charana rajataalee, dhyawaa daasaam visaawaa ||"
+      ]
+    },
+    {
+      "id": "dhoop",
+      "name": "Dhoop Aarti",
+      "time": "Sunset (6:30 PM)",
+      "subtitle": "The Evening Twilight Prayer",
+      "meaning": "At sunset, as lamps are lit at the Dhuni and Dwarkamai, devotees sing praises thanking Baba for His shelter through the day.",
+      "verses": [
+        "Aarati Saayee Baba, saukhyadaataara jeeva | Charana rajataalee, dhyawaa daasaam visaawaa ||",
+        "Jaya deva jaya deva Datta avadhootaa | Owaaloo aarati Maazhyaa Sadguru Saayeeshaa ||",
+        "Kaarunyasindhu Baba dinaancha daataa | Maazhi he vinantee aayikee Eeshwara raayaa ||"
+      ]
+    },
+    {
+      "id": "shej",
+      "name": "Shej Aarti",
+      "time": "Night (10:00 PM)",
+      "subtitle": "The Night Rest Prayer",
+      "meaning": "The final aarti of the day, a soothing lullaby bidding Sai Baba peaceful rest and seeking His protection through the night.",
+      "verses": [
+        "Owaaloo aarati maazhyaa Sadguru raayaa | Shreemanta Saayeenaathha charana kamalaa ||",
+        "Aataa suvaamee sukhe nidra karaa avadhootaa | Chinmaya he roopa maazhe daakhawaa netraam ||",
+        "Paava ga Saayeeraayaa bhava sagara taaree | Kripaakatakshe maazhyaa hridayaantee raahoo ||"
+      ]
+    }
+  ]
+}

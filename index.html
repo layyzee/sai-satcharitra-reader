@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="sepia">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sri Sai Satcharitra - Daily Nitya Parayan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-size-md">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-title" id="btn-brand-home" title="Go to Home Dashboard">
+        <span class="om-symbol">ॐ</span>
+        <div class="brand-text">
+          <span class="main-title">Sri Sai Satcharitra</span>
+          <span class="sub-title">Daily Nitya Parayan</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab-btn active" data-view="daily">
+        <span class="tab-icon">📖</span> Today's Read
+      </button>
+      <button class="nav-tab-btn" data-view="chapters">
+        <span class="tab-icon">📑</span> All Chapters
+      </button>
+      <button class="nav-tab-btn" data-view="saptah">
+        <span class="tab-icon">🗓️</span> 7-Day Saptah
+      </button>
+      <button class="nav-tab-btn" data-view="aartis">
+        <span class="tab-icon">🪔</span> Daily Aartis
+      </button>
+      <button class="nav-tab-btn" data-view="sayings">
+        <span class="tab-icon">✨</span> 11 Sayings
+      </button>
+    </nav>
+
+    <!-- Reading Controls (Bell, Keyboard, Theme & Font Size) -->
+    <div class="header-right">
+      <button id="btn-temple-bell" class="icon-ctrl-btn" title="Ring Temple Bell (B)">🔔</button>
+      <button id="btn-shortcuts-help" class="icon-ctrl-btn" title="Keyboard Shortcuts (?)">⌨️</button>
+
+      <div class="font-controls" title="Adjust Font Size (+ / -)">
+        <button id="btn-font-dec" class="ctrl-btn" title="Decrease Font">A-</button>
+        <button id="btn-font-reset" class="ctrl-btn" title="Default Font">A</button>
+        <button id="btn-font-inc" class="ctrl-btn" title="Increase Font">A+</button>
+      </div>
+
+      <div class="theme-controls">
+        <button class="theme-btn sepia active" data-theme="sepia" title="Warm Sepia Theme (T)"></button>
+        <button class="theme-btn light" data-theme="light" title="Day Light Theme (T)"></button>
+        <button class="theme-btn dark" data-theme="dark" title="Night Dark Theme (T)"></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Reading Progress Bar (visible in reader mode) -->
+  <div id="reading-progress-container" class="reading-progress-bar">
+    <div id="reading-progress-fill" class="progress-fill"></div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast-notification" class="toast-popup">
+    <span class="toast-icon">🪔</span>
+    <span id="toast-message">Om Sai Ram</span>
+  </div>
+
+  <!-- Main Application Content Area -->
+  <main class="app-main">
+    
+    <!-- VIEW 1: DAILY DASHBOARD (Default) -->
+    <section id="view-daily" class="view-panel active">
+      <div class="daily-hero-card">
+        <div class="hero-image-wrapper">
+          <img src="assets/saibaba.jpg" alt="Shirdi Sai Baba" class="hero-portrait">
+        </div>
+        <div class="hero-content">
+          <div class="daily-greeting">
+            <span class="date-badge" id="current-date-badge">Today</span>
+            <span class="quote-badge">"Shraddha & Saburi"</span>
+          </div>
+          <h1 class="hero-headline">Om Sai Ram</h1>
+          
+          <!-- Dynamic Daily Blessing / Saying -->
+          <div class="dynamic-blessing-box">
+            <p class="hero-tagline" id="daily-dynamic-saying">
+              "Whoever puts their feet on Shirdi soil, their sufferings will come to an end."
+            </p>
+            <button id="btn-refresh-saying" class="btn-refresh-blessing" title="Draw another divine blessing">
+              ✨ Draw New Blessing
+            </button>
+          </div>
+
+          <div class="streak-banner">
+            <div class="streak-stat">
+              <span class="stat-number" id="stat-completed-count">0</span>
+              <span class="stat-label">Chapters Read</span>
+            </div>
+            <div class="streak-divider"></div>
+            <div class="streak-stat">
+              <span class="stat-number" id="stat-streak-count">1</span>
+              <span class="stat-label">Day Streak 🔥</span>
+            </div>
+            <div class="streak-divider"></div>
+            <div class="streak-stat">
+              <span class="stat-number" id="stat-remaining-count">48</span>
+              <span class="stat-label">To Complete</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Assigned Chapter Card -->
+      <div class="today-focus-card">
+        <div class="card-eyebrow">
+          <span class="pulsing-dot"></span>
+          <span>TODAY'S DAILY READING</span>
+        </div>
+        
+        <div class="chapter-card-body">
+          <div class="chapter-header-info">
+            <span class="chap-badge" id="daily-chap-badge">Chapter 1</span>
+            <span class="read-time-badge" id="daily-read-time">~10 min read</span>
+          </div>
+          <h2 class="daily-chap-title" id="daily-chap-title">The Story of Grinding Wheat and Its Philosophical Significance</h2>
+          <div class="daily-topics-list" id="daily-chap-topics">
+            <!-- Topics loaded dynamically -->
+          </div>
+
+          <div class="daily-action-row">
+            <button id="btn-read-today" class="btn-primary-read">
+              <span class="btn-icon">📖</span> Read Today's Chapter
+            </button>
+            <button id="btn-mark-today-complete" class="btn-secondary-complete">
+              <span class="btn-check">✓</span> Mark Chapter Completed
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Parayan Progress Tracker -->
+      <div class="parayan-progress-card">
+        <div class="progress-card-header">
+          <div>
+            <h3 class="progress-title">Nitya Parayan Progress</h3>
+            <p class="progress-sub" id="progress-text">1 of 48 chapters completed (2%)</p>
+          </div>
+          <button id="btn-reset-parayan" class="btn-text-subtle">Reset Cycle</button>
+        </div>
+        <div class="overall-progress-bar">
+          <div id="overall-progress-fill" class="overall-fill" style="width: 2%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: CHAPTER READER (Immersive focused reading) -->
+    <section id="view-reader" class="view-panel">
+      <!-- Reader Floating Top Navigation -->
+      <div class="reader-toolbar">
+        <button id="btn-back-to-daily" class="reader-nav-btn">
+          <span>←</span> Dashboard
+        </button>
+
+        <div class="reader-chapter-select-wrapper">
+          <select id="reader-chapter-dropdown" class="chapter-select-dropdown">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div class="reader-tools-right">
+          <button id="btn-toggle-find" class="reader-nav-btn" title="Find in text (Cmd+F)">
+            🔍 Find
+          </button>
+          <button id="btn-reader-mark-complete" class="reader-complete-btn">
+            <span>✓</span> Mark Done
+          </button>
+        </div>
+      </div>
+
+      <!-- In-Page Quick Search Floating Bar -->
+      <div id="reader-find-bar" class="reader-find-bar hidden">
+        <input type="text" id="reader-find-input" class="find-input" placeholder="Search words in this chapter...">
+        <span id="reader-find-count" class="find-count">0 found</span>
+        <button id="btn-close-find" class="btn-close-find">✕</button>
+      </div>
+
+      <!-- Reader Scroll Container -->
+      <article class="reader-article-container">
+        <header class="reader-header">
+          <div class="reader-meta">
+            <span class="reader-chap-tag" id="reader-meta-chap">Chapter 1</span>
+            <span class="reader-time-tag" id="reader-meta-time">10 min read</span>
+          </div>
+          <h1 class="reader-title" id="reader-title">Chapter Title</h1>
+          <div class="reader-topics-box" id="reader-topics-box"></div>
+          <div class="sacred-divider">❦ ❦ ❦</div>
+        </header>
+
+        <!-- Chapter Content injected here -->
+        <div id="reader-body" class="reader-body-content">
+          <!-- Raw chapter paragraphs rendered here -->
+        </div>
+
+        <!-- Chapter Bottom Navigation -->
+        <footer class="reader-footer">
+          <div class="sacred-divider">Om Sai Ram</div>
+          <div class="reader-footer-nav">
+            <button id="btn-prev-chapter" class="nav-arrow-btn">
+              <span>←</span> Previous Chapter
+            </button>
+            <button id="btn-complete-and-next" class="btn-primary-next">
+              Complete & Next Chapter <span>→</span>
+            </button>
+          </div>
+        </footer>
+      </article>
+    </section>
+
+    <!-- VIEW 3: ALL CHAPTERS DIRECTORY -->
+    <section id="view-chapters" class="view-panel">
+      <div class="directory-header">
+        <div>
+          <h2 class="section-title">Table of Chapters</h2>
+          <p class="section-desc">Search and navigate through all 48 chapters of Sri Sai Satcharitra.</p>
+        </div>
+        <div class="search-bar-wrapper">
+          <input type="text" id="chapter-search-input" class="search-input" placeholder="Search chapters, miracles, devotees...">
+        </div>
+      </div>
+
+      <!-- Chapter Filter Pills -->
+      <div class="filter-pills-row">
+        <button class="filter-pill active" data-filter="all">All Chapters (48)</button>
+        <button class="filter-pill" data-filter="unread">Upcoming Today</button>
+        <button class="filter-pill" data-filter="completed">Completed</button>
+      </div>
+
+      <!-- Grid of Chapter Cards -->
+      <div class="chapters-grid" id="chapters-grid-container">
+        <!-- Chapter cards injected dynamically -->
+      </div>
+    </section>
+
+    <!-- VIEW 4: 7-DAY SAPTAH PARAYAN SCHEDULE -->
+    <section id="view-saptah" class="view-panel">
+      <div class="saptah-header">
+        <h2 class="section-title">7-Day Saptah Parayan Plan</h2>
+        <p class="section-desc">Traditional Thursday-to-Wednesday reading cycle complete in 7 days.</p>
+      </div>
+
+      <div class="saptah-days-container" id="saptah-days-list">
+        <!-- 7-day schedule cards injected dynamically -->
+      </div>
+    </section>
+
+    <!-- VIEW 5: DAILY AARTIS -->
+    <section id="view-aartis" class="view-panel">
+      <div class="aartis-header">
+        <h2 class="section-title">The Four Daily Aartis of Shirdi</h2>
+        <p class="section-desc">Sung in Shirdi Mandir at dawn, noon, sunset, and night.</p>
+        
+        <div class="aarti-tabs" id="aarti-tabs-container">
+          <button class="aarti-tab-btn active" data-aarti="kakad">🌅 Kakad (Dawn 4:30 AM)</button>
+          <button class="aarti-tab-btn" data-aarti="madhyan">☀️ Madhyan (Noon 12:00 PM)</button>
+          <button class="aarti-tab-btn" data-aarti="dhoop">🌇 Dhoop (Sunset 6:30 PM)</button>
+          <button class="aarti-tab-btn" data-aarti="shej">🌙 Shej (Night 10:00 PM)</button>
+        </div>
+      </div>
+
+      <div class="aarti-content-card" id="aarti-display-area">
+        <!-- Aarti details and verses rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- VIEW 6: 11 SAYINGS / VACHANS -->
+    <section id="view-sayings" class="view-panel">
+      <div class="sayings-header">
+        <h2 class="section-title">The 11 Assurances of Sai Baba</h2>
+        <p class="section-desc">Sai Baba’s immortal promises to every devotee who turns their heart to Him.</p>
+      </div>
+
+      <div class="sayings-grid" id="sayings-grid-container">
+        <!-- 11 sayings rendered dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="shortcuts-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Keyboard Shortcuts</h3>
+        <button id="btn-close-modal" class="btn-close-modal">✕</button>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut-row"><kbd>[</kbd> <span>Previous Chapter</span></div>
+        <div class="shortcut-row"><kbd>]</kbd> <span>Next Chapter</span></div>
+        <div class="shortcut-row"><kbd>T</kbd> <span>Cycle Theme (Sepia / Light / Dark)</span></div>
+        <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd> <span>Increase / Decrease Font Size</span></div>
+        <div class="shortcut-row"><kbd>B</kbd> <span>Ring Temple Bell</span></div>
+        <div class="shortcut-row"><kbd>Esc</kbd> <span>Return to Dashboard / Close Popups</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load bundled local data -->
+  <script src="data/bundle.js"></script>
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

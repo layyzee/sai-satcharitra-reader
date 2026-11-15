@@ -1,0 +1,15 @@
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Large compiled binary installers
+*.dmg
+*.app/
+
+# Node & package caches
+node_modules/
+npm-debug.log*
+
+# Python caches
+__pycache__/
+*.py[cod]
