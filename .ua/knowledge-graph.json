@@ -1,0 +1,406 @@
+{
+  "version": "1.0.0",
+  "kind": "codebase",
+  "project": {
+    "name": "sai-satcharitra-reader",
+    "languages": [
+      "javascript",
+      "html",
+      "css",
+      "json",
+      "python"
+    ],
+    "frameworks": [
+      "Web Audio API",
+      "Pake",
+      "GitHub Actions"
+    ],
+    "description": "100% offline daily devotional reader for Sri Sai Satcharitra with Solfeggio chime synthesizer, streak tracking, and 7-day Saptah Parayan schedule.",
+    "analyzedAt": "2026-11-15T05:30:00.000Z",
+    "gitCommitHash": "333d269"
+  },
+  "layers": [
+    {
+      "id": "presentation",
+      "name": "Presentation & UI",
+      "description": "HTML markup and responsive Holy Book parchment design system",
+      "nodeIds": [
+        "file:index.html",
+        "file:style.css"
+      ]
+    },
+    {
+      "id": "logic",
+      "name": "Application Logic",
+      "description": "Client state, bookmarks, streak tracking, and Web Audio synthesis",
+      "nodeIds": [
+        "file:app.js",
+        "function:app.js:playTempleBell",
+        "function:app.js:renderDailyAssignment",
+        "function:app.js:loadChapter",
+        "function:app.js:updateStreak",
+        "function:app.js:searchInChapter"
+      ]
+    },
+    {
+      "id": "data",
+      "name": "Data & Content",
+      "description": "Structured JSON chapters, offline JS bundle, and devotional texts",
+      "nodeIds": [
+        "file:data/bundle.js",
+        "file:data/chapters.json",
+        "file:data/devotional.json"
+      ]
+    },
+    {
+      "id": "automation",
+      "name": "Tooling & CI/CD",
+      "description": "Web scraper, GitHub Actions release pipeline, and desktop packaging",
+      "nodeIds": [
+        "file:download_all.py",
+        "file:.github/workflows/build-dmg.yml"
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "file:index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "index.html",
+      "summary": "Main responsive interface containing the header, theme/font controls, daily assignment card, reading view, Saptah Parayan tab, and keyboard shortcuts modal.",
+      "tags": [
+        "ui",
+        "layout",
+        "html5",
+        "semantic-web"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:style.css",
+      "type": "file",
+      "name": "style.css",
+      "filePath": "style.css",
+      "summary": "Holy book typography system with 3 switchable color themes (Holy Sepia, Light Day, Dark Night), drop caps, responsive split sidebars, and clean reading margins.",
+      "tags": [
+        "css3",
+        "typography",
+        "theming",
+        "responsive"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:app.js",
+      "type": "file",
+      "name": "app.js",
+      "filePath": "app.js",
+      "summary": "Core client-side controller managing chapter navigation, Solfeggio frequency temple bell chime, reading streak calculation, search highlighting, and localStorage bookmarks.",
+      "tags": [
+        "javascript",
+        "controller",
+        "audio",
+        "state-management"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:app.js:playTempleBell",
+      "type": "function",
+      "name": "playTempleBell",
+      "filePath": "app.js",
+      "lineRange": [
+        8,
+        38
+      ],
+      "summary": "Synthesizes an authentic temple bell using the Web Audio API with a 528 Hz Solfeggio fundamental tone and harmonic overtone decay without any external audio files.",
+      "tags": [
+        "web-audio",
+        "synthesizer",
+        "audio-dsp",
+        "solfeggio"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:app.js:renderDailyAssignment",
+      "type": "function",
+      "name": "renderDailyAssignment",
+      "filePath": "app.js",
+      "lineRange": [
+        45,
+        95
+      ],
+      "summary": "Calculates today's assigned chapter based on calendar day-of-year, computes estimated reading time, and displays daily devotional blessing vachans.",
+      "tags": [
+        "algorithm",
+        "calendar",
+        "daily-reading",
+        "vachan"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:app.js:loadChapter",
+      "type": "function",
+      "name": "loadChapter",
+      "filePath": "app.js",
+      "lineRange": [
+        105,
+        175
+      ],
+      "summary": "Renders selected chapter paragraphs with drop-caps, restores previous scroll position from localStorage, and updates the overall completion progress bar.",
+      "tags": [
+        "renderer",
+        "dom",
+        "bookmarking",
+        "localstorage"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:app.js:updateStreak",
+      "type": "function",
+      "name": "updateStreak",
+      "filePath": "app.js",
+      "lineRange": [
+        180,
+        220
+      ],
+      "summary": "Tracks consecutive daily reading activity, increments reading streaks, and persists completion history in localStorage.",
+      "tags": [
+        "streak",
+        "gamification",
+        "habit-tracking"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:app.js:searchInChapter",
+      "type": "function",
+      "name": "searchInChapter",
+      "filePath": "app.js",
+      "lineRange": [
+        230,
+        275
+      ],
+      "summary": "Performs instant in-reader keyword search with real-time DOM text highlighting and match navigation.",
+      "tags": [
+        "search",
+        "highlighting",
+        "dom-manipulation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:data/bundle.js",
+      "type": "file",
+      "name": "bundle.js",
+      "filePath": "data/bundle.js",
+      "summary": "Encapsulates the complete 48 reading sections and 51 chapters into a global window.SAI_CHAPTERS object to bypass desktop webview file:// CORS restrictions.",
+      "tags": [
+        "data-bundle",
+        "cors-bypass",
+        "offline-storage"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:data/chapters.json",
+      "type": "file",
+      "name": "chapters.json",
+      "filePath": "data/chapters.json",
+      "summary": "638 KB structured dataset containing full text, titles, subtitles, and paragraphs for all 51 chapters of Sri Sai Satcharitra.",
+      "tags": [
+        "json",
+        "raw-content",
+        "dataset"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:data/devotional.json",
+      "type": "file",
+      "name": "devotional.json",
+      "filePath": "data/devotional.json",
+      "summary": "Curated database of the 11 Baba Promises (Vachans) and 4 daily Aarti lyrics (Kakad, Madhyan, Dhoop, Shej).",
+      "tags": [
+        "devotional",
+        "prayers",
+        "aarti",
+        "vachans"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:download_all.py",
+      "type": "file",
+      "name": "download_all.py",
+      "filePath": "download_all.py",
+      "summary": "Multithreaded Python scraper that fetched, parsed, sanitized, and structured all chapters from shirdibooks.com.",
+      "tags": [
+        "python",
+        "web-scraper",
+        "data-extraction"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:.github/workflows/build-dmg.yml",
+      "type": "file",
+      "name": "build-dmg.yml",
+      "filePath": ".github/workflows/build-dmg.yml",
+      "summary": "Continuous Integration workflow on GitHub Actions that compiles the native Apple Silicon .dmg installer with Pake and publishes releases.",
+      "tags": [
+        "ci-cd",
+        "github-actions",
+        "release-automation",
+        "pake"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:index.html",
+      "target": "file:style.css",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "Applies typography and visual parchment theme styling to the HTML UI shell",
+      "weight": 0.8
+    },
+    {
+      "source": "file:index.html",
+      "target": "file:data/bundle.js",
+      "type": "imports",
+      "direction": "forward",
+      "description": "Loads all 51 chapters and devotional data into window.SAI_CHAPTERS before controller execution",
+      "weight": 0.9
+    },
+    {
+      "source": "file:index.html",
+      "target": "file:app.js",
+      "type": "imports",
+      "direction": "forward",
+      "description": "Loads and initializes the main client application controller script",
+      "weight": 0.95
+    },
+    {
+      "source": "file:app.js",
+      "target": "file:data/bundle.js",
+      "type": "reads_from",
+      "direction": "forward",
+      "description": "Reads structured chapters and aarti lyrics from the bundled global object",
+      "weight": 0.9
+    },
+    {
+      "source": "file:app.js",
+      "target": "function:app.js:playTempleBell",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Triggers the Web Audio harmonic 528Hz Solfeggio synthesizer chime on chapter load",
+      "weight": 0.7
+    },
+    {
+      "source": "file:app.js",
+      "target": "function:app.js:renderDailyAssignment",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Calculates and renders today's assigned reading section and holy vachan",
+      "weight": 0.85
+    },
+    {
+      "source": "file:app.js",
+      "target": "function:app.js:loadChapter",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Renders chapter paragraphs and restores saved scroll position from localStorage",
+      "weight": 0.95
+    },
+    {
+      "source": "file:app.js",
+      "target": "function:app.js:updateStreak",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Tracks and persists daily consecutive reading activity in localStorage",
+      "weight": 0.65
+    },
+    {
+      "source": "file:app.js",
+      "target": "function:app.js:searchInChapter",
+      "type": "calls",
+      "direction": "forward",
+      "description": "Filters chapter paragraphs and highlights matching keywords in real time",
+      "weight": 0.6
+    },
+    {
+      "source": "file:download_all.py",
+      "target": "file:data/chapters.json",
+      "type": "writes_to",
+      "direction": "forward",
+      "description": "Saves sanitized, structured scraped text into JSON dataset",
+      "weight": 0.75
+    },
+    {
+      "source": "file:data/chapters.json",
+      "target": "file:data/bundle.js",
+      "type": "transforms",
+      "direction": "forward",
+      "description": "Packaged into browser-ready window script object to avoid CORS blocks",
+      "weight": 0.8
+    },
+    {
+      "source": "file:.github/workflows/build-dmg.yml",
+      "target": "file:index.html",
+      "type": "configures",
+      "direction": "forward",
+      "description": "Instructs Pake to package the web shell into a native macOS Apple Silicon installer",
+      "weight": 0.85
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "1. Authentic Content Dataset",
+      "description": "The raw 638 KB structured JSON representing all 51 chapters and 48 daily reading sections.",
+      "nodeIds": [
+        "file:data/chapters.json"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "2. Zero-CORS Offline Bundle",
+      "description": "To allow WebViews and local file:// browsing to run without CORS security blocks, the data is attached to window.SAI_CHAPTERS.",
+      "nodeIds": [
+        "file:data/bundle.js"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "3. The Reading Shell",
+      "description": "Clean semantic HTML providing header controls, reading view, streak counters, and shortcuts.",
+      "nodeIds": [
+        "file:index.html",
+        "file:style.css"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "4. Web Audio Synthesizer",
+      "description": "Synthesizes a 528Hz Solfeggio temple bell harmonically using pure math and zero external audio files.",
+      "nodeIds": [
+        "function:app.js:playTempleBell",
+        "file:app.js"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "5. Automated macOS Build",
+      "description": "Compiles the app into a native Apple Silicon .dmg installer with custom Shirdi Sai Baba dock icon.",
+      "nodeIds": [
+        "file:.github/workflows/build-dmg.yml"
+      ]
+    }
+  ]
+}
