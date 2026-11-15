@@ -485,6 +485,117 @@ body {
   background-color: var(--border-color);
 }
 
+/* Quick Action Toolbar & Bookmark Resume */
+.hero-actions-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.resume-reading-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--bg-surface-elevated), var(--primary-light));
+  border: 1px solid var(--accent-saffron);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.resume-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resume-icon {
+  font-size: 20px;
+}
+
+.resume-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.resume-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.resume-chapter-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.btn-resume-action {
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn-resume-action:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(180, 83, 9, 0.25);
+}
+
+.btn-notification-action {
+  align-self: flex-start;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-notification-action:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--bg-surface-elevated);
+}
+
+.btn-notification-action.active {
+  background-color: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+  border-style: solid;
+}
+
+/* Ambient Tanpura Drone Active State */
+#btn-ambient-tanpura.playing {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  animation: dronePulse 2s infinite ease-in-out;
+}
+
+@keyframes dronePulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4); }
+  50% { transform: scale(1.08); box-shadow: 0 0 10px 3px rgba(217, 119, 6, 0.3); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0); }
+}
+
 /* Today's Focus Card */
 .today-focus-card {
   background-color: var(--bg-surface);

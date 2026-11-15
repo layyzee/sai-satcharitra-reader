@@ -38,8 +38,9 @@
       </button>
     </nav>
 
-    <!-- Reading Controls (Bell, Keyboard, Theme & Font Size) -->
+    <!-- Reading Controls (Drone, Bell, Keyboard, Theme & Font Size) -->
     <div class="header-right">
+      <button id="btn-ambient-tanpura" class="icon-ctrl-btn" title="Ambient Tanpura Meditation Drone (M)">🪕</button>
       <button id="btn-temple-bell" class="icon-ctrl-btn" title="Ring Temple Bell (B)">🔔</button>
       <button id="btn-shortcuts-help" class="icon-ctrl-btn" title="Keyboard Shortcuts (?)">⌨️</button>
 
@@ -109,6 +110,26 @@
               <span class="stat-number" id="stat-remaining-count">48</span>
               <span class="stat-label">To Complete</span>
             </div>
+          </div>
+
+          <!-- Quick Action Controls (Resume Bookmark & Daily Wisdom Notification) -->
+          <div class="hero-actions-toolbar">
+            <div id="resume-reading-container" class="resume-reading-box" style="display: none;">
+              <div class="resume-meta">
+                <span class="resume-icon">🔖</span>
+                <div class="resume-text">
+                  <span class="resume-label">LAST READ BOOKMARK</span>
+                  <span class="resume-chapter-name" id="resume-chapter-name">Chapter 1</span>
+                </div>
+              </div>
+              <button id="btn-resume-bookmark" class="btn-resume-action" title="Jump straight to where you left off">
+                Continue Reading ➔
+              </button>
+            </div>
+
+            <button id="btn-toggle-notification" class="btn-notification-action" title="Toggle Daily Morning Wisdom Notification">
+              🔔 Enable Daily Morning Wisdom
+            </button>
           </div>
         </div>
       </div>
@@ -355,6 +376,7 @@
         <div class="shortcut-row"><kbd>T</kbd> <span>Cycle Theme (Sepia / Light / Dark)</span></div>
         <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd> <span>Increase / Decrease Font Size</span></div>
         <div class="shortcut-row"><kbd>B</kbd> <span>Ring Temple Bell</span></div>
+        <div class="shortcut-row"><kbd>M</kbd> <span>Toggle Ambient Tanpura Meditation Drone</span></div>
         <div class="shortcut-row"><kbd>Esc</kbd> <span>Return to Dashboard / Close Popups</span></div>
       </div>
     </div>

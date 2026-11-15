@@ -42,6 +42,7 @@
     navTabs: document.querySelectorAll('.nav-tab-btn'),
     viewPanels: document.querySelectorAll('.view-panel'),
     themeBtns: document.querySelectorAll('.theme-btn'),
+    btnAmbientTanpura: document.getElementById('btn-ambient-tanpura'),
     btnTempleBell: document.getElementById('btn-temple-bell'),
     btnShortcutsHelp: document.getElementById('btn-shortcuts-help'),
     btnFontDec: document.getElementById('btn-font-dec'),
@@ -55,6 +56,10 @@
     currentDateBadge: document.getElementById('current-date-badge'),
     dailyDynamicSaying: document.getElementById('daily-dynamic-saying'),
     btnRefreshSaying: document.getElementById('btn-refresh-saying'),
+    resumeReadingContainer: document.getElementById('resume-reading-container'),
+    resumeChapterName: document.getElementById('resume-chapter-name'),
+    btnResumeBookmark: document.getElementById('btn-resume-bookmark'),
+    btnToggleNotification: document.getElementById('btn-toggle-notification'),
     statCompletedCount: document.getElementById('stat-completed-count'),
     statStreakCount: document.getElementById('stat-streak-count'),
     statRemainingCount: document.getElementById('stat-remaining-count'),
@@ -172,6 +177,164 @@
       });
     } catch (err) {
       console.warn("Web Audio not available:", err);
+    }
+  }
+
+  // ==========================================================================
+  // Web Audio Synthesizer: Ambient Tanpura Meditation Drone
+  // ==========================================================================
+
+  let isTanpuraPlaying = false;
+  let tanpuraTimer = null;
+  let tanpuraGainNode = null;
+  let tanpuraStringIndex = 0;
+
+  // Traditional 4-string Tanpura tuning (Pa, Sa, Sa, Kharja Sa)
+  const TANPURA_STRINGS = [
+    { name: "Pa", freq: 196.00, gain: 0.35, decay: 4.5 },
+    { name: "Sa", freq: 261.63, gain: 0.38, decay: 4.0 },
+    { name: "Sa", freq: 261.63, gain: 0.38, decay: 4.0 },
+    { name: "Kharja Sa", freq: 130.81, gain: 0.50, decay: 5.5 }
+  ];
+
+  function pluckTanpuraString(ctx, stringData) {
+    if (!isTanpuraPlaying) return;
+    const now = ctx.currentTime;
+    
+    // Resonant oscillator + harmonic overtone
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const filter = ctx.createBiquadFilter();
+    const stringGain = ctx.createGain();
+
+    // Jawari / thread buzzing overtone simulation
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1200, now);
+    filter.Q.setValueAtTime(3.0, now);
+
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(stringData.freq, now);
+
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(stringData.freq * 2, now);
+
+    stringGain.gain.setValueAtTime(0.0001, now);
+    stringGain.gain.linearRampToValueAtTime(stringData.gain, now + 0.04);
+    stringGain.gain.exponentialRampToValueAtTime(0.0001, now + stringData.decay);
+
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(stringGain);
+    stringGain.connect(tanpuraGainNode);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + stringData.decay);
+    osc2.stop(now + stringData.decay);
+  }
+
+  function toggleAmbientDrone() {
+    try {
+      const ctx = getAudioContext();
+      if (!isTanpuraPlaying) {
+        isTanpuraPlaying = true;
+        if (!tanpuraGainNode) {
+          tanpuraGainNode = ctx.createGain();
+          tanpuraGainNode.gain.setValueAtTime(0.4, ctx.currentTime);
+          tanpuraGainNode.connect(ctx.destination);
+        }
+        if (elements.btnAmbientTanpura) {
+          elements.btnAmbientTanpura.classList.add('playing');
+          elements.btnAmbientTanpura.title = "Pause Ambient Tanpura Drone (M)";
+        }
+        showToast("Tanpura Meditation Drone Active 🪕", "🪕");
+
+        tanpuraStringIndex = 0;
+        pluckTanpuraString(ctx, TANPURA_STRINGS[tanpuraStringIndex]);
+        tanpuraStringIndex = (tanpuraStringIndex + 1) % TANPURA_STRINGS.length;
+
+        tanpuraTimer = setInterval(() => {
+          if (!isTanpuraPlaying) return;
+          pluckTanpuraString(ctx, TANPURA_STRINGS[tanpuraStringIndex]);
+          tanpuraStringIndex = (tanpuraStringIndex + 1) % TANPURA_STRINGS.length;
+        }, 1350);
+      } else {
+        isTanpuraPlaying = false;
+        clearInterval(tanpuraTimer);
+        tanpuraTimer = null;
+        if (elements.btnAmbientTanpura) {
+          elements.btnAmbientTanpura.classList.remove('playing');
+          elements.btnAmbientTanpura.title = "Play Ambient Tanpura Drone (M)";
+        }
+        showToast("Meditation Drone Paused", "🪕");
+      }
+    } catch (err) {
+      console.warn("Could not start ambient drone:", err);
+    }
+  }
+
+  // ==========================================================================
+  // Bookmark UI & Desktop Wisdom Notifications
+  // ==========================================================================
+
+  function updateBookmarkUI() {
+    if (!elements.resumeReadingContainer) return;
+    const lastChap = state.lastReadChapter || state.activeReadingChapter;
+    if (lastChap) {
+      const chapters = window.SAI_CHAPTERS || [];
+      const chapObj = chapters.find(c => c.id === lastChap) || chapters[0];
+      if (chapObj && elements.resumeChapterName) {
+        elements.resumeChapterName.textContent = `Chapter ${chapObj.id}: ${chapObj.title}`;
+        elements.resumeReadingContainer.style.display = 'flex';
+      }
+    }
+  }
+
+  function initNotificationSystem() {
+    if (!elements.btnToggleNotification) return;
+    if (!('Notification' in window)) {
+      elements.btnToggleNotification.style.display = 'none';
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      elements.btnToggleNotification.classList.add('active');
+      elements.btnToggleNotification.innerHTML = '✓ Daily Morning Wisdom Enabled';
+      checkDailyNotification();
+    } else {
+      elements.btnToggleNotification.classList.remove('active');
+      elements.btnToggleNotification.innerHTML = '🔔 Enable Daily Morning Wisdom';
+    }
+  }
+
+  function checkDailyNotification() {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const lastNotified = localStorage.getItem('sai_last_notified_date');
+    if (lastNotified !== todayStr) {
+      sendDailyNotification();
+      localStorage.setItem('sai_last_notified_date', todayStr);
+    }
+  }
+
+  function sendDailyNotification(force = false) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
+    const saying = sayings.length > 0 
+      ? sayings[Math.floor(Math.random() * sayings.length)] 
+      : { text: "Why fear when I am here? Surrender all worries at My feet.", title: "Divine Assurance" };
+
+    try {
+      const notif = new Notification("Om Sai Ram 🪔 - Daily Wisdom", {
+        body: `"${saying.text}"\n— Sri Sai Baba`,
+        icon: "assets/saibaba.jpg"
+      });
+      notif.onclick = () => {
+        window.focus();
+        switchView('daily');
+      };
+      if (force) showToast("Desktop Wisdom notification sent! 🔔", "🔔");
+    } catch (e) {
+      console.warn("Notification error:", e);
     }
   }
 
@@ -455,7 +618,9 @@
     if (!chapter) return;
 
     state.activeReadingChapter = chapterId;
+    state.lastReadChapter = chapterId;
     saveState();
+    updateBookmarkUI();
 
     // Set Meta
     elements.readerMetaChap.textContent = chapter.short_title;
@@ -1093,6 +1258,41 @@
       });
     });
 
+    // Ambient Tanpura Meditation Drone Button
+    if (elements.btnAmbientTanpura) {
+      elements.btnAmbientTanpura.addEventListener('click', toggleAmbientDrone);
+    }
+
+    // Resume Bookmark Action
+    if (elements.btnResumeBookmark) {
+      elements.btnResumeBookmark.addEventListener('click', () => {
+        openChapter(state.lastReadChapter || state.currentDailyChapter || 1);
+      });
+    }
+
+    // Daily Wisdom Notifications Toggle
+    if (elements.btnToggleNotification) {
+      elements.btnToggleNotification.addEventListener('click', () => {
+        if (!('Notification' in window)) {
+          showToast("Notifications not supported in browser", "⚠️");
+          return;
+        }
+        if (Notification.permission === 'granted') {
+          sendDailyNotification(true);
+        } else {
+          Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+              elements.btnToggleNotification.classList.add('active');
+              elements.btnToggleNotification.innerHTML = '✓ Daily Morning Wisdom Enabled';
+              sendDailyNotification(true);
+            } else {
+              showToast("Notifications permission not granted", "⚠️");
+            }
+          });
+        }
+      });
+    }
+
     // Global Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       // Don't trigger shortcuts if typing in input
@@ -1117,6 +1317,8 @@
       } else if (e.key.toLowerCase() === 'b') {
         playTempleBell();
         showToast("Om Sai Ram", "🔔");
+      } else if (e.key.toLowerCase() === 'm') {
+        toggleAmbientDrone();
       } else if (e.key === '?') {
         elements.shortcutsModal.classList.toggle('hidden');
       } else if (e.key === 'Escape') {
@@ -1145,12 +1347,16 @@
 
     // Populate Views
     updateDashboardUI();
+    updateBookmarkUI();
     setDynamicSaying();
     populateReaderDropdown();
     renderChaptersDirectory();
     renderSaptahSchedule();
     renderAarti('kakad');
     renderSayings('all', '');
+
+    // Initialize notifications
+    initNotificationSystem();
 
     // Bind all events
     bindEvents();
