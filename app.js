@@ -7,6 +7,8 @@
 
   // Application State
   const STATE_KEY = 'sai_satcharitra_state_v2';
+  const FAVORITES_KEY = 'sai_favorites_v1';
+  const REFLECTIONS_KEY = 'sai_reflections_v1';
   
   let state = {
     currentDailyChapter: 1, // 1 to 48
@@ -17,7 +19,9 @@
     theme: 'sepia',
     fontSize: 'font-size-md',
     bookmarks: {}, // { chapterId: scrollPercent }
-    soundEnabled: true
+    soundEnabled: true,
+    favorites: [],
+    reflections: {}
   };
 
   // 7-Day Saptah Parayan Traditional Schedule
@@ -81,10 +85,12 @@
     readerBody: document.getElementById('reader-body'),
     btnPrevChapter: document.getElementById('btn-prev-chapter'),
     btnCompleteAndNext: document.getElementById('btn-complete-and-next'),
+    chapterReflectionInput: document.getElementById('chapter-reflection-input'),
+    reflectionStatusLabel: document.getElementById('reflection-status-label'),
 
     // Chapters Directory
     chapterSearchInput: document.getElementById('chapter-search-input'),
-    filterPills: document.querySelectorAll('.filter-pill'),
+    filterPills: document.querySelectorAll('.filter-pills-row .filter-pill'),
     chaptersGridContainer: document.getElementById('chapters-grid-container'),
 
     // Saptah View
@@ -94,8 +100,19 @@
     aartiTabBtns: document.querySelectorAll('.aarti-tab-btn'),
     aartiDisplayArea: document.getElementById('aarti-display-area'),
 
-    // Sayings View
+    // Sayings & Oracle View
     sayingsGridContainer: document.getElementById('sayings-grid-container'),
+    btnDrawOracle: document.getElementById('btn-draw-oracle'),
+    oracleGuidanceCard: document.getElementById('oracle-guidance-card'),
+    btnCloseOracle: document.getElementById('btn-close-oracle'),
+    btnAnotherOracle: document.getElementById('btn-another-oracle'),
+    btnCopyOracle: document.getElementById('btn-copy-oracle'),
+    oracleQuote: document.getElementById('oracle-quote'),
+    oracleMeta: document.getElementById('oracle-meta'),
+    oracleMeaning: document.getElementById('oracle-meaning'),
+    sayingsSearchInput: document.getElementById('sayings-search-input'),
+    sayingsFilterPills: document.querySelectorAll('#sayings-filter-container .filter-pill'),
+    favCountBadge: document.getElementById('fav-count'),
 
     // Modal
     shortcutsModal: document.getElementById('shortcuts-modal'),
@@ -103,92 +120,108 @@
   };
 
   const fontSizes = ['font-size-sm', 'font-size-md', 'font-size-lg', 'font-size-xl'];
-
-  // ==========================================================================
-  // Temple Bell Sound Synthesizer (Zero Audio Files - Pure Web Audio API)
-  // ==========================================================================
-
+  let currentDirectoryFilter = 'all';
+  let currentSayingsCategory = 'all';
+  let currentSayingsSearch = '';
   let audioCtx = null;
+
+  // ==========================================================================
+  // Web Audio Synthesizer: 528Hz Solfeggio Sacred Temple Bell
+  // ==========================================================================
+
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
 
   function playTempleBell() {
     try {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
 
-      const now = audioCtx.currentTime;
-      
-      // Tibetan Singing Bowl / Temple Bell Harmonic Profile (528Hz Base)
-      const frequencies = [528, 1056, 1584, 2112, 2640];
-      const gains = [0.45, 0.25, 0.12, 0.06, 0.02];
+      // Solfeggio 528Hz transformation frequency harmonics
+      const partials = [
+        { freq: 528, gain: 0.55, decay: 3.2 },
+        { freq: 1056, gain: 0.28, decay: 2.2 },
+        { freq: 1584, gain: 0.16, decay: 1.5 },
+        { freq: 2112, gain: 0.09, decay: 1.0 },
+        { freq: 2640, gain: 0.04, decay: 0.7 }
+      ];
 
-      frequencies.forEach((freq, idx) => {
-        const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
+      partials.forEach(p => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-        osc.type = (idx === 0) ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(p.freq, now);
 
-        // Exponential gentle decay
-        gainNode.gain.setValueAtTime(gains[idx], now);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
+        gain.gain.setValueAtTime(p.gain, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + p.decay);
 
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 3.6);
+        osc.stop(now + p.decay);
       });
-    } catch (e) {
-      console.warn("Web Audio bell failed:", e);
+    } catch (err) {
+      console.warn("Web Audio not available:", err);
     }
   }
 
   // ==========================================================================
-  // Toast Popup
+  // Toast Notifications
   // ==========================================================================
 
-  let toastTimer = null;
-  function showToast(message, icon = '🪔') {
+  let toastTimeout = null;
+  function showToast(message, icon = "🪔") {
+    if (!elements.toastNotification) return;
     elements.toastMessage.textContent = message;
-    const iconEl = elements.toastNotification.querySelector('.toast-icon');
-    if (iconEl) iconEl.textContent = icon;
+    const iconSpan = elements.toastNotification.querySelector('.toast-icon');
+    if (iconSpan) iconSpan.textContent = icon;
 
-    elements.toastNotification.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      elements.toastNotification.classList.remove('show');
+    elements.toastNotification.classList.add('visible');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+      elements.toastNotification.classList.remove('visible');
     }, 2800);
   }
 
-  // ==========================================================================
-  // Initialization & State
-  // ==========================================================================
-
-  function init() {
-    loadState();
-    setupDate();
-    applyTheme(state.theme);
-    applyFontSize(state.fontSize);
-    
-    bindEvents();
-    populateReaderDropdown();
-    renderDailyDashboard();
-    renderChaptersDirectory();
-    renderSaptahSchedule();
-    renderAarti('kakad');
-    renderSayings();
-    setDynamicSaying();
+  function copyToClipboard(text, successToast = "Blessing copied to clipboard 📋") {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successToast, "📋");
+      }).catch(() => {
+        showToast("Copied to clipboard!", "📋");
+      });
+    } else {
+      showToast("Copied!", "📋");
+    }
   }
+
+  // ==========================================================================
+  // State Persistence
+  // ==========================================================================
 
   function loadState() {
     try {
       const saved = localStorage.getItem(STATE_KEY);
       if (saved) {
-        state = Object.assign(state, JSON.parse(saved));
+        state = { ...state, ...JSON.parse(saved) };
+      }
+      const savedFavs = localStorage.getItem(FAVORITES_KEY);
+      if (savedFavs) {
+        state.favorites = JSON.parse(savedFavs);
+      }
+      const savedNotes = localStorage.getItem(REFLECTIONS_KEY);
+      if (savedNotes) {
+        state.reflections = JSON.parse(savedNotes);
       }
     } catch (e) {
       console.warn("Could not load state:", e);
@@ -203,10 +236,29 @@
     }
   }
 
+  function saveFavorites() {
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
+      updateFavoriteCount();
+    } catch (e) {
+      console.warn("Could not save favorites:", e);
+    }
+  }
+
+  function saveReflections() {
+    try {
+      localStorage.setItem(REFLECTIONS_KEY, JSON.stringify(state.reflections));
+    } catch (e) {
+      console.warn("Could not save reflections:", e);
+    }
+  }
+
   function setupDate() {
     const today = new Date();
     const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-    elements.currentDateBadge.textContent = today.toLocaleDateString('en-US', options);
+    if (elements.currentDateBadge) {
+      elements.currentDateBadge.textContent = today.toLocaleDateString('en-US', options);
+    }
   }
 
   // ==========================================================================
@@ -215,7 +267,7 @@
 
   function setDynamicSaying(index = null) {
     const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
-    if (sayings.length === 0) return;
+    if (sayings.length === 0 || !elements.dailyDynamicSaying) return;
 
     if (index === null) {
       // Pick based on day of year
@@ -230,7 +282,7 @@
     const saying = sayings[index];
     elements.dailyDynamicSaying.style.opacity = '0';
     setTimeout(() => {
-      elements.dailyDynamicSaying.textContent = `"${saying.text}"`;
+      elements.dailyDynamicSaying.textContent = `"${saying.quote}"`;
       elements.dailyDynamicSaying.style.opacity = '1';
     }, 150);
   }
@@ -284,36 +336,65 @@
   }
 
   // ==========================================================================
-  // View 1: Daily Dashboard Logic
+  // Streak & Daily Calculation
   // ==========================================================================
 
-  function renderDailyDashboard() {
-    const chapters = window.SAI_CHAPTERS || [];
-    const totalChapters = chapters.length;
-    const completedCount = state.completedChapters.length;
-    const remainingCount = Math.max(0, totalChapters - completedCount);
+  function computeDailyChapter() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    const oneDay = 1000 * 60 * 60 * 24;
+    const dayOfYear = Math.floor(diff / oneDay);
     
-    // Stats update
+    const chaptersCount = (window.SAI_CHAPTERS || []).length || 48;
+    return (dayOfYear % chaptersCount) + 1;
+  }
+
+  function checkAndUpdateStreak() {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (!state.lastReadDate) {
+      state.streak = 1;
+    } else {
+      const last = new Date(state.lastReadDate);
+      const today = new Date(todayStr);
+      const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        // Consecutive day
+      } else if (diffDays > 1) {
+        state.streak = 1; // reset streak if missed
+      }
+    }
+    saveState();
+  }
+
+  function updateDashboardUI() {
+    const chapters = window.SAI_CHAPTERS || [];
+    const totalCount = chapters.length || 48;
+    const completedCount = state.completedChapters.length;
+    const remainingCount = Math.max(0, totalCount - completedCount);
+    const percent = Math.round((completedCount / totalCount) * 100);
+
+    // Stats
     elements.statCompletedCount.textContent = completedCount;
     elements.statStreakCount.textContent = state.streak;
     elements.statRemainingCount.textContent = remainingCount;
 
     // Progress Bar
-    const percent = Math.round((completedCount / totalChapters) * 100);
-    elements.progressText.textContent = `${completedCount} of ${totalChapters} chapters completed (${percent}%)`;
     elements.overallProgressFill.style.width = `${percent}%`;
+    elements.progressText.textContent = `${completedCount} of ${totalCount} Chapters Completed (${percent}%)`;
 
-    // Today's Assigned Chapter
-    const currentChapter = chapters.find(c => c.id === state.currentDailyChapter) || chapters[0];
-    if (currentChapter) {
-      elements.dailyChapBadge.textContent = currentChapter.short_title;
-      elements.dailyReadTime.textContent = `~${currentChapter.reading_time_mins} min read (${currentChapter.word_count.toLocaleString()} words)`;
-      elements.dailyChapTitle.textContent = currentChapter.title.replace(/^Sai Satcharitra /i, '');
+    // Today Chapter Focus Card
+    const dailyChap = chapters.find(c => c.id === state.currentDailyChapter) || chapters[0];
+    if (dailyChap) {
+      elements.dailyChapBadge.textContent = dailyChap.short_title;
+      elements.dailyReadTime.textContent = `~${dailyChap.reading_time_mins} min read`;
+      elements.dailyChapTitle.textContent = dailyChap.title.replace(/^Sai Satcharitra /i, '');
 
       // Topics
       elements.dailyChapTopics.innerHTML = '';
-      if (currentChapter.topics && currentChapter.topics.length > 0) {
-        currentChapter.topics.slice(0, 4).forEach(t => {
+      if (dailyChap.topics && dailyChap.topics.length > 0) {
+        dailyChap.topics.forEach(t => {
           const tag = document.createElement('span');
           tag.className = 'topic-tag';
           tag.textContent = t;
@@ -321,12 +402,12 @@
         });
       }
 
-      // Completed state
-      const isDone = state.completedChapters.includes(currentChapter.id);
-      elements.btnMarkTodayComplete.classList.toggle('completed-state', isDone);
-      elements.btnMarkTodayComplete.innerHTML = isDone 
-        ? '<span class="btn-check">✓</span> Completed for Today' 
-        : '<span class="btn-check">✓</span> Mark Chapter Completed';
+      // Mark Today Complete Button State
+      const isTodayDone = state.completedChapters.includes(dailyChap.id);
+      elements.btnMarkTodayComplete.classList.toggle('done', isTodayDone);
+      elements.btnMarkTodayComplete.innerHTML = isTodayDone 
+        ? '<span>✓</span> Completed Today' 
+        : '<span>✓</span> Mark Completed';
     }
   }
 
@@ -334,33 +415,38 @@
     if (!state.completedChapters.includes(chapterId)) {
       state.completedChapters.push(chapterId);
       
-      // Update streak
-      const todayStr = new Date().toDateString();
+      const todayStr = new Date().toISOString().slice(0, 10);
       if (state.lastReadDate !== todayStr) {
-        state.streak = (state.lastReadDate) ? state.streak + 1 : 1;
+        state.streak = (state.streak || 0) + 1;
         state.lastReadDate = todayStr;
       }
 
-      // Auto advance to next chapter if marking today's current
-      if (chapterId === state.currentDailyChapter) {
-        if (state.currentDailyChapter < (window.SAI_CHAPTERS || []).length) {
-          state.currentDailyChapter += 1;
-        }
-      }
-
-      playTempleBell();
-      showToast(`Chapter ${chapterId} Completed! May Sai Baba bless your day.`, '🔔');
-
       saveState();
-      renderDailyDashboard();
+      playTempleBell();
+      showToast(`Chapter ${chapterId} Completed! May Sai Baba bless you 🙏`, '🌸');
+      updateDashboardUI();
       renderChaptersDirectory();
       renderSaptahSchedule();
-      updateReaderCompletionButton(chapterId);
     }
   }
 
+  function toggleChapterComplete(chapterId) {
+    const idx = state.completedChapters.indexOf(chapterId);
+    if (idx > -1) {
+      state.completedChapters.splice(idx, 1);
+      showToast(`Marked Chapter ${chapterId} as unread`, '📖');
+    } else {
+      markChapterComplete(chapterId);
+    }
+    saveState();
+    updateDashboardUI();
+    updateReaderCompletionButton(chapterId);
+    renderChaptersDirectory();
+    renderSaptahSchedule();
+  }
+
   // ==========================================================================
-  // View 2: Immersive Chapter Reader
+  // Reader View Logic
   // ==========================================================================
 
   function openChapter(chapterId) {
@@ -392,6 +478,14 @@
 
     // Dropdown selection sync
     elements.readerChapterDropdown.value = chapter.id;
+
+    // Reflection Journal
+    if (elements.chapterReflectionInput) {
+      elements.chapterReflectionInput.value = state.reflections[chapter.id] || '';
+      elements.reflectionStatusLabel.textContent = state.reflections[chapter.id] 
+        ? 'Saved offline ✓' 
+        : 'Auto-saves offline';
+    }
 
     // Prev / Next button state
     elements.btnPrevChapter.style.visibility = (chapter.id > 1) ? 'visible' : 'hidden';
@@ -466,27 +560,36 @@
     }
 
     try {
-      const regex = new RegExp(`(${clean.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
-      const paragraphs = chapter.content.split('</p>');
-      let matchCount = 0;
+      const regex = new RegExp(`(${clean})`, 'gi');
+      let count = 0;
+      
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = chapter.content;
 
-      const highlighted = paragraphs.map(p => {
-        if (!p) return '';
-        const matches = (p.match(regex) || []).length;
-        matchCount += matches;
-        return p.replace(regex, '<mark class="find-highlight">$1</mark>');
-      }).join('</p>');
+      function highlightText(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const match = node.nodeValue.match(regex);
+          if (match) {
+            count += match.length;
+            const span = document.createElement('span');
+            span.innerHTML = node.nodeValue.replace(regex, '<mark class="find-highlight">$1</mark>');
+            node.parentNode.replaceChild(span, node);
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE && node.nodeName !== 'MARK') {
+          Array.from(node.childNodes).forEach(highlightText);
+        }
+      }
 
-      elements.readerBody.innerHTML = highlighted;
-      elements.readerFindCount.textContent = `${matchCount} found`;
+      Array.from(tempDiv.childNodes).forEach(highlightText);
+      elements.readerBody.innerHTML = tempDiv.innerHTML;
+      elements.readerFindCount.textContent = `${count} found`;
 
-      // Scroll to first match if any
-      const firstMark = elements.readerBody.querySelector('mark.find-highlight');
-      if (firstMark) {
-        firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const firstMatch = elements.readerBody.querySelector('mark.find-highlight');
+      if (firstMatch) {
+        firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } catch (e) {
-      console.warn("Search error:", e);
+      console.warn("Search regex error:", e);
     }
   }
 
@@ -494,11 +597,10 @@
   // View 3: All Chapters Directory
   // ==========================================================================
 
-  let currentDirectoryFilter = 'all';
-
   function renderChaptersDirectory(query = '') {
     const chapters = window.SAI_CHAPTERS || [];
     const container = elements.chaptersGridContainer;
+    if (!container) return;
     container.innerHTML = '';
 
     const cleanQuery = query.toLowerCase().trim();
@@ -506,6 +608,7 @@
     chapters.forEach(c => {
       const isCompleted = state.completedChapters.includes(c.id);
       const isToday = c.id === state.currentDailyChapter;
+      const hasNote = !!(state.reflections && state.reflections[c.id]);
 
       // Filtering logic
       if (currentDirectoryFilter === 'completed' && !isCompleted) return;
@@ -525,6 +628,10 @@
         ? '<span class="card-status-badge done">✓ Completed</span>'
         : (isToday ? '<span class="card-status-badge" style="color:var(--primary); font-weight:700;">✦ Today</span>' : '');
 
+      const noteHtml = hasNote
+        ? '<span class="chapter-has-note-badge" title="You wrote personal reflections for this chapter">✍️ Note</span>'
+        : '';
+
       const topicsSnippet = c.topics.length > 0 
         ? c.topics.slice(0, 2).join(' • ') 
         : 'Spiritual discourse and divine leelas of Shirdi Sai Baba.';
@@ -533,7 +640,10 @@
         <div>
           <div class="chap-card-top">
             <span class="card-number">${c.short_title}</span>
-            ${statusHtml}
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${noteHtml}
+              ${statusHtml}
+            </div>
           </div>
           <h3 class="chap-card-title">${c.title.replace(/^Sai Satcharitra /i, '')}</h3>
           <p class="chap-card-topics">${topicsSnippet}</p>
@@ -561,6 +671,7 @@
 
   function renderSaptahSchedule() {
     const container = elements.saptahDaysList;
+    if (!container) return;
     container.innerHTML = '';
 
     SAPTAH_SCHEDULE.forEach(plan => {
@@ -599,20 +710,17 @@
   }
 
   // ==========================================================================
-  // View 5: Daily Aartis
+  // View 5: Daily Aartis of Shirdi
   // ==========================================================================
 
-  function renderAarti(aartiId) {
-    const devotional = window.SAI_DEVOTIONAL || {};
-    const aartis = devotional.aartis || [];
-    const aarti = aartis.find(a => a.id === aartiId) || aartis[0];
-    if (!aarti) return;
-
+  function renderAarti(aartiId = 'kakad') {
     elements.aartiTabBtns.forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-aarti') === aartiId);
     });
 
-    const versesHtml = aarti.verses.map(v => `<p class="aarti-verse-item">${v}</p>`).join('');
+    const aartis = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.aartis) || [];
+    const aarti = aartis.find(a => a.id === aartiId) || aartis[0];
+    if (!aarti || !elements.aartiDisplayArea) return;
 
     elements.aartiDisplayArea.innerHTML = `
       <div class="aarti-card-heading">
@@ -620,34 +728,156 @@
         <h3 class="aarti-main-name">${aarti.name}</h3>
         <p class="aarti-sub-name">${aarti.subtitle}</p>
       </div>
+
       <div class="aarti-meaning-box">
         <strong>Spiritual Significance:</strong> ${aarti.meaning}
       </div>
-      <div class="aarti-verses-box">
-        ${versesHtml}
+
+      <div class="aarti-verses-list">
+        ${aarti.verses.map(v => `<p class="aarti-verse-item">${v}</p>`).join('')}
+      </div>
+
+      <div style="text-align: center; margin-top: 24px;">
+        <button id="btn-aarti-bell" class="btn-primary-read" style="font-size: 13.5px; padding: 8px 18px;">
+          🔔 Chime Aarti Bell
+        </button>
       </div>
     `;
+
+    const aartiBellBtn = document.getElementById('btn-aarti-bell');
+    if (aartiBellBtn) {
+      aartiBellBtn.addEventListener('click', () => {
+        playTempleBell();
+        showToast(`Offering Aarti Prayers: ${aarti.name}`, '🪔');
+      });
+    }
   }
 
   // ==========================================================================
-  // View 6: 11 Sayings of Sai Baba
+  // View 6: Divine Sayings & Oracle Guidance (52 Authentic Pearls)
   // ==========================================================================
 
-  function renderSayings() {
-    const devotional = window.SAI_DEVOTIONAL || {};
-    const sayings = devotional.sayings || [];
+  function updateFavoriteCount() {
+    if (elements.favCountBadge) {
+      elements.favCountBadge.textContent = state.favorites.length;
+    }
+  }
+
+  function renderSayings(category = currentSayingsCategory, query = currentSayingsSearch) {
+    currentSayingsCategory = category;
+    currentSayingsSearch = query;
+
+    const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
     const container = elements.sayingsGridContainer;
+    if (!container) return;
     container.innerHTML = '';
 
-    sayings.forEach(s => {
+    const cleanQuery = query.toLowerCase().trim();
+
+    const filtered = sayings.filter(s => {
+      // Category filter
+      if (category === 'favorites') {
+        if (!state.favorites.includes(s.id)) return false;
+      } else if (category !== 'all') {
+        if (s.category !== category) return false;
+      }
+
+      // Search query filter
+      if (cleanQuery) {
+        const qMatch = (s.quote || '').toLowerCase().includes(cleanQuery);
+        const mMatch = (s.meaning || '').toLowerCase().includes(cleanQuery);
+        const cMatch = (s.context || '').toLowerCase().includes(cleanQuery);
+        const lMatch = (s.categoryLabel || '').toLowerCase().includes(cleanQuery);
+        if (!qMatch && !mMatch && !cMatch && !lMatch) return false;
+      }
+
+      return true;
+    });
+
+    filtered.forEach(s => {
+      const isFav = state.favorites.includes(s.id);
       const card = document.createElement('div');
       card.className = 'saying-card';
       card.innerHTML = `
-        <div class="saying-num">${s.number}</div>
-        <p class="saying-text">"${s.text}"</p>
+        <div>
+          <div class="saying-card-top">
+            <span class="saying-badge">${s.categoryLabel || 'Divine Assurance'}</span>
+            <span class="saying-num">#${s.number}</span>
+          </div>
+          <blockquote class="saying-quote">"${s.quote}"</blockquote>
+          <div class="saying-meaning-box">
+            <strong>Reflection:</strong> ${s.meaning}
+          </div>
+        </div>
+        <div class="saying-card-footer">
+          <span class="saying-context" title="${s.context}">${s.context}</span>
+          <div class="saying-card-actions">
+            <button class="btn-card-action btn-fav-saying ${isFav ? 'starred' : ''}" data-id="${s.id}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
+              ${isFav ? '★' : '☆'}
+            </button>
+            <button class="btn-card-action btn-copy-saying" title="Copy Blessing">
+              📋
+            </button>
+          </div>
+        </div>
       `;
+
+      // Star / Favorite toggle
+      card.querySelector('.btn-fav-saying').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorite(s.id);
+      });
+
+      // Copy blessing quote
+      card.querySelector('.btn-copy-saying').addEventListener('click', (e) => {
+        e.stopPropagation();
+        copyToClipboard(`"${s.quote}" — Sri Sai Baba (${s.context})`);
+      });
+
       container.appendChild(card);
     });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; color: var(--text-muted);">
+        <p style="font-size: 32px; margin-bottom: 10px;">🪔</p>
+        <p style="font-size: 16px; font-weight: 600;">No divine sayings found for your search.</p>
+        <p style="font-size: 13px; margin-top: 4px;">Try searching another keyword (e.g. fear, saburi, dog, sparrow) or clear filters.</p>
+      </div>`;
+    }
+
+    updateFavoriteCount();
+  }
+
+  function toggleFavorite(id) {
+    const idx = state.favorites.indexOf(id);
+    if (idx > -1) {
+      state.favorites.splice(idx, 1);
+      showToast("Removed from favorites", "☆");
+    } else {
+      state.favorites.push(id);
+      showToast("Saved to your Starred Favorites ⭐", "⭐");
+    }
+    saveFavorites();
+    renderSayings();
+  }
+
+  function drawOracleGuidance() {
+    const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
+    if (sayings.length === 0 || !elements.oracleGuidanceCard) return;
+
+    playTempleBell();
+
+    const randomIdx = Math.floor(Math.random() * sayings.length);
+    const selected = sayings[randomIdx];
+
+    elements.oracleQuote.textContent = `"${selected.quote}"`;
+    elements.oracleMeta.textContent = `— ${selected.context} • ${selected.categoryLabel}`;
+    elements.oracleMeaning.innerHTML = `<strong>Baba's Guidance for You:</strong> ${selected.meaning}`;
+
+    elements.oracleGuidanceCard.classList.remove('hidden');
+    elements.oracleGuidanceCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    showToast("Baba has spoken to your heart 🪔", "🪔");
   }
 
   // ==========================================================================
@@ -683,11 +913,12 @@
       if (e.target === elements.shortcutsModal) elements.shortcutsModal.classList.add('hidden');
     });
 
-    // Dynamic Blessing Refresh
+    // Dynamic Blessing Refresh on Home
     elements.btnRefreshSaying.addEventListener('click', () => {
       const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
       const randomIdx = Math.floor(Math.random() * sayings.length);
       setDynamicSaying(randomIdx);
+      playTempleBell();
       showToast("Divine Blessing refreshed ✨", "✨");
     });
 
@@ -719,23 +950,22 @@
     });
 
     elements.btnMarkTodayComplete.addEventListener('click', () => {
-      markChapterComplete(state.currentDailyChapter);
+      toggleChapterComplete(state.currentDailyChapter);
     });
 
     elements.btnResetParayan.addEventListener('click', () => {
-      if (confirm("Would you like to reset your Parayan progress and start fresh from Chapter 1?")) {
+      if (confirm("Reset reading progress and start a fresh Parayan cycle?")) {
         state.completedChapters = [];
-        state.currentDailyChapter = 1;
         state.bookmarks = {};
         saveState();
-        renderDailyDashboard();
+        updateDashboardUI();
         renderChaptersDirectory();
         renderSaptahSchedule();
-        showToast("Parayan reset to Chapter 1", "🔄");
+        showToast("Parayan reset for a fresh blessed cycle 🙏", "🪔");
       }
     });
 
-    // Reader View Actions
+    // Reader Actions
     elements.btnBackToDaily.addEventListener('click', () => switchView('daily'));
 
     elements.readerChapterDropdown.addEventListener('change', (e) => {
@@ -743,7 +973,7 @@
     });
 
     elements.btnReaderMarkComplete.addEventListener('click', () => {
-      markChapterComplete(state.activeReadingChapter);
+      toggleChapterComplete(state.activeReadingChapter);
     });
 
     elements.btnPrevChapter.addEventListener('click', () => {
@@ -762,6 +992,21 @@
         switchView('daily');
       }
     });
+
+    // Reader Reflection Journal Input (Debounced Auto-save)
+    if (elements.chapterReflectionInput) {
+      let reflectionTimeout = null;
+      elements.chapterReflectionInput.addEventListener('input', () => {
+        elements.reflectionStatusLabel.textContent = 'Saving...';
+        clearTimeout(reflectionTimeout);
+        reflectionTimeout = setTimeout(() => {
+          state.reflections[state.activeReadingChapter] = elements.chapterReflectionInput.value.trim();
+          saveReflections();
+          elements.reflectionStatusLabel.textContent = 'Saved offline ✓';
+          renderChaptersDirectory();
+        }, 400);
+      });
+    }
 
     // Reader In-Page Find
     elements.btnToggleFind.addEventListener('click', toggleFindBar);
@@ -811,6 +1056,43 @@
       });
     });
 
+    // Sayings View: Oracle Guidance Trigger
+    if (elements.btnDrawOracle) {
+      elements.btnDrawOracle.addEventListener('click', drawOracleGuidance);
+    }
+    if (elements.btnCloseOracle) {
+      elements.btnCloseOracle.addEventListener('click', () => {
+        elements.oracleGuidanceCard.classList.add('hidden');
+      });
+    }
+    if (elements.btnAnotherOracle) {
+      elements.btnAnotherOracle.addEventListener('click', drawOracleGuidance);
+    }
+    if (elements.btnCopyOracle) {
+      elements.btnCopyOracle.addEventListener('click', () => {
+        const quote = elements.oracleQuote.textContent;
+        const meta = elements.oracleMeta.textContent;
+        copyToClipboard(`${quote} ${meta}`, "Divine Guidance copied 📋");
+      });
+    }
+
+    // Sayings Search Input
+    if (elements.sayingsSearchInput) {
+      elements.sayingsSearchInput.addEventListener('input', (e) => {
+        renderSayings(currentSayingsCategory, e.target.value);
+      });
+    }
+
+    // Sayings Category Filter Pills
+    elements.sayingsFilterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        elements.sayingsFilterPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const cat = pill.getAttribute('data-category');
+        renderSayings(cat, elements.sayingsSearchInput ? elements.sayingsSearchInput.value : '');
+      });
+    });
+
     // Global Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       // Don't trigger shortcuts if typing in input
@@ -843,6 +1125,35 @@
         switchView('daily');
       }
     });
+  }
+
+  // ==========================================================================
+  // App Initialization
+  // ==========================================================================
+
+  function init() {
+    loadState();
+    setupDate();
+
+    // Check if daily chapter needs update
+    state.currentDailyChapter = computeDailyChapter();
+    checkAndUpdateStreak();
+
+    // Apply saved preferences
+    applyTheme(state.theme || 'sepia');
+    applyFontSize(state.fontSize || 'font-size-md');
+
+    // Populate Views
+    updateDashboardUI();
+    setDynamicSaying();
+    populateReaderDropdown();
+    renderChaptersDirectory();
+    renderSaptahSchedule();
+    renderAarti('kakad');
+    renderSayings('all', '');
+
+    // Bind all events
+    bindEvents();
   }
 
   // Launch on DOM ready

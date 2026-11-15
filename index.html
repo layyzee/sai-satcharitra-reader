@@ -34,7 +34,7 @@
         <span class="tab-icon">🪔</span> Daily Aartis
       </button>
       <button class="nav-tab-btn" data-view="sayings">
-        <span class="tab-icon">✨</span> 11 Sayings
+        <span class="tab-icon">✨</span> Divine Sayings (52)
       </button>
     </nav>
 
@@ -204,6 +204,18 @@
           <!-- Raw chapter paragraphs rendered here -->
         </div>
 
+        <!-- Personal Devotional Journal & Reflection Box -->
+        <div class="reader-reflection-box">
+          <div class="reflection-header">
+            <div class="reflection-title-group">
+              <span class="reflection-icon">✍️</span>
+              <span class="reflection-title">My Spiritual Reflection & Prayer</span>
+            </div>
+            <span id="reflection-status-label" class="reflection-status">Auto-saved offline ✓</span>
+          </div>
+          <textarea id="chapter-reflection-input" class="reflection-textarea" placeholder="Write your thoughts, key realizations, or personal prayer for this chapter (automatically saved)..."></textarea>
+        </div>
+
         <!-- Chapter Bottom Navigation -->
         <footer class="reader-footer">
           <div class="sacred-divider">Om Sai Ram</div>
@@ -275,15 +287,56 @@
       </div>
     </section>
 
-    <!-- VIEW 6: 11 SAYINGS / VACHANS -->
+    <!-- VIEW 6: DIVINE SAYINGS & GUIDANCE -->
     <section id="view-sayings" class="view-panel">
       <div class="sayings-header">
-        <h2 class="section-title">The 11 Assurances of Sai Baba</h2>
-        <p class="section-desc">Sai Baba’s immortal promises to every devotee who turns their heart to Him.</p>
+        <div class="sayings-title-row">
+          <div>
+            <h2 class="section-title">Divine Sayings & Wisdom of Sai Baba</h2>
+            <p class="section-desc">Treasury of 52 immortal promises, nectar-like counsel, and teachings from Shirdi.</p>
+          </div>
+          <button id="btn-draw-oracle" class="btn-oracle-guidance" title="Quiet your mind and receive a divine message from Baba">
+            <span class="oracle-icon">🪔</span> Seek Baba's Guidance
+          </button>
+        </div>
+
+        <!-- Interactive Oracle Guidance Card -->
+        <div id="oracle-guidance-card" class="oracle-guidance-card hidden">
+          <div class="oracle-card-inner">
+            <div class="oracle-badge-row">
+              <span class="oracle-badge">✨ Divine Counsel from Baba</span>
+              <button id="btn-close-oracle" class="oracle-close-btn" title="Close Guidance">✕</button>
+            </div>
+            <blockquote id="oracle-quote" class="oracle-quote">"Why fear when I am here? Surrender your mind and heart to Me, and peace shall be yours."</blockquote>
+            <div id="oracle-meta" class="oracle-meta">— Chapter 13 • Protection & Surrender</div>
+            <p id="oracle-meaning" class="oracle-meaning">Fear vanishes the moment you realize Baba is standing beside you in every challenge.</p>
+            <div class="oracle-actions">
+              <button id="btn-another-oracle" class="oracle-btn-sub">✨ Another Divine Pearl</button>
+              <button id="btn-copy-oracle" class="oracle-btn-sub">📋 Copy Blessing</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search & Category Filters -->
+        <div class="sayings-toolbar">
+          <div class="search-bar-wrapper">
+            <input type="text" id="sayings-search-input" class="search-input" placeholder="Search 52 sayings, topics, keywords (e.g. fear, saburi, dog, sparrow, karma)...">
+          </div>
+          <div class="sayings-filter-pills" id="sayings-filter-container">
+            <button class="filter-pill active" data-category="all">All Sayings (52)</button>
+            <button class="filter-pill" data-category="vachan">🌟 11 Vachans</button>
+            <button class="filter-pill" data-category="faith_patience">🕊️ Faith & Patience</button>
+            <button class="filter-pill" data-category="fear_surrender">🪔 Why Fear?</button>
+            <button class="filter-pill" data-category="love_compassion">❤️ Compassion</button>
+            <button class="filter-pill" data-category="karma_contentment">⚖️ Karma & Peace</button>
+            <button class="filter-pill" data-category="devotion_grace">🌺 Guru Grace</button>
+            <button class="filter-pill" data-category="favorites">⭐ My Starred (<span id="fav-count">0</span>)</button>
+          </div>
+        </div>
       </div>
 
       <div class="sayings-grid" id="sayings-grid-container">
-        <!-- 11 sayings rendered dynamically -->
+        <!-- 52 sayings rendered dynamically -->
       </div>
     </section>
 
