@@ -1,0 +1,56 @@
+name: Build & Release macOS App
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Pake CLI
+        run: npm install -g pake-cli
+
+      - name: Build macOS DMG
+        run: |
+          pake "file://$(pwd)/index.html" \
+            --name "SaiSatcharitra" \
+            --icon assets/icon.icns \
+            --width 1200 \
+            --height 850 \
+            --targets dmg
+
+      - name: Upload DMG as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaiSatcharitra-macOS-DMG
+          path: SaiSatcharitra.dmg
+
+      - name: Create GitHub Release on Tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: SaiSatcharitra.dmg
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
