@@ -121,7 +121,46 @@
 
     // Modal
     shortcutsModal: document.getElementById('shortcuts-modal'),
-    btnCloseModal: document.getElementById('btn-close-modal')
+    btnCloseModal: document.getElementById('btn-close-modal'),
+
+    // Mobile Bottom Navigation Bar
+    mobileNavBtns: document.querySelectorAll('.mobile-nav-btn'),
+
+    // Reader Floating Pill
+    readerFloatingPill: document.getElementById('reader-floating-pill'),
+    btnPillPrev: document.getElementById('btn-pill-prev'),
+    btnPillNext: document.getElementById('btn-pill-next'),
+    btnPillComplete: document.getElementById('btn-pill-complete'),
+    btnPillTheme: document.getElementById('btn-pill-theme'),
+    btnPillFontInc: document.getElementById('btn-pill-font-inc'),
+    btnPillFontDec: document.getElementById('btn-pill-font-dec'),
+
+    // Cross-Device Sync Modal Elements
+    btnSyncModal: document.getElementById('btn-sync-modal'),
+    syncModal: document.getElementById('sync-modal'),
+    btnCloseSyncModal: document.getElementById('btn-close-sync-modal'),
+    syncTabBtns: document.querySelectorAll('.sync-tab-btn'),
+    syncTabPanels: document.querySelectorAll('.sync-tab-panel'),
+    wifiStatusDot: document.getElementById('wifi-status-dot'),
+    wifiStatusText: document.getElementById('wifi-status-text'),
+    wifiLastSynced: document.getElementById('wifi-last-synced'),
+    syncServerInput: document.getElementById('sync-server-input'),
+    btnDoWifiSync: document.getElementById('btn-do-wifi-sync'),
+    syncAutoLaunch: document.getElementById('sync-auto-launch'),
+    btnCopySyncKey: document.getElementById('btn-copy-sync-key'),
+    syncKeyInput: document.getElementById('sync-key-input'),
+    btnApplySyncKey: document.getElementById('btn-apply-sync-key'),
+    btnDownloadBackup: document.getElementById('btn-download-backup'),
+    backupFileInput: document.getElementById('backup-file-input'),
+
+    // Settings Modal Elements
+    btnSettingsModal: document.getElementById('btn-settings-modal'),
+    settingsModal: document.getElementById('settings-modal'),
+    btnCloseSettingsModal: document.getElementById('btn-close-settings-modal'),
+    themeCardOptions: document.querySelectorAll('.theme-card-option'),
+    fontScaleBtns: document.querySelectorAll('.font-scale-btn'),
+    btnSettingsTanpura: document.getElementById('btn-settings-tanpura'),
+    btnSettingsBell: document.getElementById('btn-settings-bell')
   };
 
   const fontSizes = ['font-size-sm', 'font-size-md', 'font-size-lg', 'font-size-xl'];
@@ -416,6 +455,229 @@
     }
   }
 
+  // ==========================================================================
+  // Cross-Device Story & Save Sync Engine (Local Wi-Fi + Portable Key + JSON)
+  // ==========================================================================
+
+  function getSyncPayload() {
+    return {
+      version: 2,
+      updatedAt: new Date().toISOString(),
+      currentDailyChapter: state.currentDailyChapter,
+      activeReadingChapter: state.activeReadingChapter,
+      completedChapters: state.completedChapters || [],
+      streak: state.streak || 1,
+      lastReadDate: state.lastReadDate,
+      lastReadChapter: state.lastReadChapter || state.activeReadingChapter,
+      theme: state.theme,
+      fontSize: state.fontSize,
+      bookmarks: state.bookmarks || {},
+      favorites: state.favorites || [],
+      reflections: state.reflections || {}
+    };
+  }
+
+  function mergeSyncStates(local, remote) {
+    if (!remote || remote.empty) return local;
+
+    // Union of completed chapters
+    const completedSet = new Set([
+      ...(local.completedChapters || []),
+      ...(remote.completedChapters || [])
+    ]);
+
+    // Union of favorites
+    const favSet = new Set([
+      ...(local.favorites || []),
+      ...(remote.favorites || [])
+    ]);
+
+    // Merge bookmarks
+    const mergedBookmarks = { ...(local.bookmarks || {}), ...(remote.bookmarks || {}) };
+
+    // Merge reflections
+    const mergedReflections = { ...(local.reflections || {}) };
+    if (remote.reflections) {
+      Object.keys(remote.reflections).forEach(k => {
+        if (!mergedReflections[k] || (remote.reflections[k].length > mergedReflections[k].length)) {
+          mergedReflections[k] = remote.reflections[k];
+        }
+      });
+    }
+
+    // Determine latest reading position based on timestamps or chapter progress
+    const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+    const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+    const preferRemote = remoteTime > localTime;
+
+    return {
+      ...local,
+      completedChapters: Array.from(completedSet).sort((a,b) => a - b),
+      favorites: Array.from(favSet),
+      bookmarks: mergedBookmarks,
+      reflections: mergedReflections,
+      streak: Math.max(local.streak || 1, remote.streak || 1),
+      activeReadingChapter: preferRemote ? (remote.activeReadingChapter || local.activeReadingChapter) : local.activeReadingChapter,
+      lastReadChapter: preferRemote ? (remote.lastReadChapter || local.lastReadChapter) : (local.lastReadChapter || remote.lastReadChapter),
+      lastReadDate: preferRemote ? (remote.lastReadDate || local.lastReadDate) : local.lastReadDate,
+      theme: preferRemote ? (remote.theme || local.theme) : local.theme,
+      fontSize: preferRemote ? (remote.fontSize || local.fontSize) : local.fontSize,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function updateSyncStatus(text, type = "normal") {
+    if (elements.wifiStatusText) elements.wifiStatusText.textContent = text;
+    if (elements.wifiStatusDot) {
+      elements.wifiStatusDot.style.backgroundColor = (type === "success") ? "var(--success)" : (type === "syncing" ? "var(--accent-saffron)" : (type === "error" ? "#dc2626" : "var(--primary)"));
+    }
+  }
+
+  async function performWifiSync(silent = false) {
+    let serverBase = (elements.syncServerInput ? elements.syncServerInput.value.trim() : '') || 'http://192.168.68.102:8080';
+    if (window.location.port === '8080') {
+      serverBase = window.location.origin;
+    }
+    serverBase = serverBase.replace(/\/+$/, '');
+
+    updateSyncStatus("Contacting Mac server...", "syncing");
+    try {
+      const getRes = await fetch(`${serverBase}/api/sync`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-cache'
+      });
+
+      let remoteData = {};
+      if (getRes.ok) {
+        remoteData = await getRes.json();
+      }
+
+      // Merge remote with local
+      const merged = mergeSyncStates(state, remoteData);
+      state = merged;
+      saveState();
+      saveFavorites();
+      saveReflections();
+
+      // Send merged state back to server
+      const payload = getSyncPayload();
+      await fetch(`${serverBase}/api/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      localStorage.setItem('sai_last_synced_time', nowTime);
+      if (elements.wifiLastSynced) {
+        elements.wifiLastSynced.textContent = `Last synced: Today at ${nowTime}`;
+      }
+      updateSyncStatus("Synced with Mac ✓", "success");
+
+      // Refresh UI to display merged chapters and reflections
+      updateDashboardUI();
+      updateBookmarkUI();
+      applyTheme(state.theme);
+      applyFontSize(state.fontSize);
+      renderChaptersDirectory();
+      renderSaptahSchedule();
+
+      if (!silent) {
+        showToast("Stories & Reading Progress Synced with Mac ✓", "🔄");
+      }
+    } catch (err) {
+      console.warn("Wi-Fi Sync warning:", err);
+      updateSyncStatus("Could not reach Mac server", "error");
+      if (!silent) {
+        showToast("Could not reach Mac server on Wi-Fi. Check address.", "⚠️");
+      }
+    }
+  }
+
+  function exportSyncKey() {
+    try {
+      const payload = getSyncPayload();
+      const jsonStr = JSON.stringify(payload);
+      const b64Key = btoa(unescape(encodeURIComponent(jsonStr)));
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(b64Key).then(() => {
+          showToast("Sync Key copied to clipboard! 📋", "✓");
+        }).catch(() => {
+          prompt("Copy your Sync Key:", b64Key);
+        });
+      } else {
+        prompt("Copy your Sync Key:", b64Key);
+      }
+    } catch (err) {
+      showToast("Error generating sync key", "⚠️");
+    }
+  }
+
+  function importSyncKey() {
+    const key = elements.syncKeyInput ? elements.syncKeyInput.value.trim() : '';
+    if (!key) {
+      showToast("Please paste a Sync Key first", "⚠️");
+      return;
+    }
+    try {
+      const decoded = decodeURIComponent(escape(atob(key)));
+      const parsed = JSON.parse(decoded);
+      state = mergeSyncStates(state, parsed);
+      saveState();
+      saveFavorites();
+      saveReflections();
+      updateDashboardUI();
+      updateBookmarkUI();
+      applyTheme(state.theme);
+      applyFontSize(state.fontSize);
+      renderChaptersDirectory();
+      renderSaptahSchedule();
+      showToast("Progress successfully restored from Sync Key! ✓", "🌟");
+      if (elements.syncKeyInput) elements.syncKeyInput.value = '';
+      if (elements.syncModal) elements.syncModal.classList.add('hidden');
+    } catch (err) {
+      showToast("Invalid Sync Key format", "⚠️");
+    }
+  }
+
+  function downloadBackupFile() {
+    const payload = getSyncPayload();
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute("href", dataStr);
+    dlAnchor.setAttribute("download", `sai-satcharitra-backup-${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(dlAnchor);
+    dlAnchor.click();
+    dlAnchor.remove();
+    showToast("Backup file downloaded! 💾", "✓");
+  }
+
+  function restoreBackupFile(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        state = mergeSyncStates(state, parsed);
+        saveState();
+        saveFavorites();
+        saveReflections();
+        updateDashboardUI();
+        updateBookmarkUI();
+        applyTheme(state.theme);
+        applyFontSize(state.fontSize);
+        renderChaptersDirectory();
+        renderSaptahSchedule();
+        showToast("Backup restored successfully! ✓", "🌟");
+        if (elements.syncModal) elements.syncModal.classList.add('hidden');
+      } catch (err) {
+        showToast("Failed to parse backup file", "⚠️");
+      }
+    };
+    reader.readAsText(file);
+  }
+
   function setupDate() {
     const today = new Date();
     const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
@@ -459,9 +721,22 @@
       panel.classList.toggle('active', panel.id === `view-${viewName}`);
     });
 
+    // Sync Desktop Nav Tabs
     elements.navTabs.forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
     });
+
+    // Sync Mobile Bottom Nav Buttons
+    if (elements.mobileNavBtns) {
+      elements.mobileNavBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
+      });
+    }
+
+    // Show floating thumb toolbar only during active reading mode
+    if (elements.readerFloatingPill) {
+      elements.readerFloatingPill.style.display = (viewName === 'reader') ? 'inline-flex' : 'none';
+    }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -481,6 +756,11 @@
     elements.themeBtns.forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-theme') === themeName);
     });
+    if (elements.themeCardOptions) {
+      elements.themeCardOptions.forEach(card => {
+        card.classList.toggle('active', card.getAttribute('data-theme') === themeName);
+      });
+    }
     saveState();
   }
 
@@ -495,6 +775,11 @@
     fontSizes.forEach(s => elements.body.classList.remove(s));
     elements.body.classList.add(sizeClass);
     state.fontSize = sizeClass;
+    if (elements.fontScaleBtns) {
+      elements.fontScaleBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-size') === sizeClass);
+      });
+    }
     saveState();
   }
 
@@ -1094,20 +1379,164 @@
       });
     });
 
-    // Font Sizing Controls
-    elements.btnFontDec.addEventListener('click', () => {
-      const idx = fontSizes.indexOf(state.fontSize);
-      if (idx > 0) applyFontSize(fontSizes[idx - 1]);
-    });
+    // Font Sizing Controls (Header & Settings)
+    if (elements.btnFontDec) {
+      elements.btnFontDec.addEventListener('click', () => {
+        const idx = fontSizes.indexOf(state.fontSize);
+        if (idx > 0) applyFontSize(fontSizes[idx - 1]);
+      });
+    }
 
-    elements.btnFontReset.addEventListener('click', () => {
-      applyFontSize('font-size-md');
-    });
+    if (elements.btnFontReset) {
+      elements.btnFontReset.addEventListener('click', () => {
+        applyFontSize('font-size-md');
+      });
+    }
 
-    elements.btnFontInc.addEventListener('click', () => {
-      const idx = fontSizes.indexOf(state.fontSize);
-      if (idx < fontSizes.length - 1) applyFontSize(fontSizes[idx + 1]);
-    });
+    if (elements.btnFontInc) {
+      elements.btnFontInc.addEventListener('click', () => {
+        const idx = fontSizes.indexOf(state.fontSize);
+        if (idx < fontSizes.length - 1) applyFontSize(fontSizes[idx + 1]);
+      });
+    }
+
+    // Mobile Bottom Navigation Tabs
+    if (elements.mobileNavBtns) {
+      elements.mobileNavBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const view = btn.getAttribute('data-view');
+          if (view) switchView(view);
+        });
+      });
+    }
+
+    // Reader Floating Thumb Toolbar
+    if (elements.btnPillPrev) {
+      elements.btnPillPrev.addEventListener('click', () => {
+        if (state.activeReadingChapter > 1) openChapter(state.activeReadingChapter - 1);
+      });
+    }
+    if (elements.btnPillNext) {
+      elements.btnPillNext.addEventListener('click', () => {
+        const chapters = window.SAI_CHAPTERS || [];
+        if (state.activeReadingChapter < chapters.length) openChapter(state.activeReadingChapter + 1);
+      });
+    }
+    if (elements.btnPillComplete) {
+      elements.btnPillComplete.addEventListener('click', () => {
+        markChapterComplete(state.activeReadingChapter);
+        const chapters = window.SAI_CHAPTERS || [];
+        if (state.activeReadingChapter < chapters.length) {
+          openChapter(state.activeReadingChapter + 1);
+        } else {
+          alert("🎉 Congratulations! You have completed all 48 chapters of Sri Sai Satcharitra! May Sai Baba's grace be upon you. Om Sai Ram!");
+          switchView('daily');
+        }
+      });
+    }
+    if (elements.btnPillTheme) {
+      elements.btnPillTheme.addEventListener('click', cycleTheme);
+    }
+    if (elements.btnPillFontInc) {
+      elements.btnPillFontInc.addEventListener('click', () => {
+        const idx = fontSizes.indexOf(state.fontSize);
+        if (idx < fontSizes.length - 1) applyFontSize(fontSizes[idx + 1]);
+      });
+    }
+    if (elements.btnPillFontDec) {
+      elements.btnPillFontDec.addEventListener('click', () => {
+        const idx = fontSizes.indexOf(state.fontSize);
+        if (idx > 0) applyFontSize(fontSizes[idx - 1]);
+      });
+    }
+
+    // Sync Modal Open / Close & Actions
+    if (elements.btnSyncModal && elements.syncModal) {
+      elements.btnSyncModal.addEventListener('click', () => {
+        elements.syncModal.classList.remove('hidden');
+      });
+    }
+    if (elements.btnCloseSyncModal && elements.syncModal) {
+      elements.btnCloseSyncModal.addEventListener('click', () => {
+        elements.syncModal.classList.add('hidden');
+      });
+    }
+    if (elements.syncModal) {
+      elements.syncModal.addEventListener('click', (e) => {
+        if (e.target === elements.syncModal) elements.syncModal.classList.add('hidden');
+      });
+    }
+    if (elements.syncTabBtns) {
+      elements.syncTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          elements.syncTabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tabKey = btn.getAttribute('data-tab');
+          if (elements.syncTabPanels) {
+            elements.syncTabPanels.forEach(panel => {
+              panel.classList.toggle('active', panel.id === `sync-panel-${tabKey}`);
+            });
+          }
+        });
+      });
+    }
+    if (elements.btnDoWifiSync) {
+      elements.btnDoWifiSync.addEventListener('click', () => performWifiSync(false));
+    }
+    if (elements.btnCopySyncKey) {
+      elements.btnCopySyncKey.addEventListener('click', exportSyncKey);
+    }
+    if (elements.btnApplySyncKey) {
+      elements.btnApplySyncKey.addEventListener('click', importSyncKey);
+    }
+    if (elements.btnDownloadBackup) {
+      elements.btnDownloadBackup.addEventListener('click', downloadBackupFile);
+    }
+    if (elements.backupFileInput) {
+      elements.backupFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) restoreBackupFile(e.target.files[0]);
+      });
+    }
+
+    // Settings Modal Open / Close & Controls
+    if (elements.btnSettingsModal && elements.settingsModal) {
+      elements.btnSettingsModal.addEventListener('click', () => {
+        elements.settingsModal.classList.remove('hidden');
+      });
+    }
+    if (elements.btnCloseSettingsModal && elements.settingsModal) {
+      elements.btnCloseSettingsModal.addEventListener('click', () => {
+        elements.settingsModal.classList.add('hidden');
+      });
+    }
+    if (elements.settingsModal) {
+      elements.settingsModal.addEventListener('click', (e) => {
+        if (e.target === elements.settingsModal) elements.settingsModal.classList.add('hidden');
+      });
+    }
+    if (elements.themeCardOptions) {
+      elements.themeCardOptions.forEach(card => {
+        card.addEventListener('click', () => {
+          applyTheme(card.getAttribute('data-theme'));
+        });
+      });
+    }
+    if (elements.fontScaleBtns) {
+      elements.fontScaleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyFontSize(btn.getAttribute('data-size'));
+        });
+      });
+    }
+    if (elements.btnSettingsTanpura) {
+      elements.btnSettingsTanpura.addEventListener('click', toggleAmbientDrone);
+    }
+    if (elements.btnSettingsBell) {
+      elements.btnSettingsBell.addEventListener('click', () => {
+        playTempleBell();
+        showToast("Om Sai Ram", "🔔");
+      });
+    }
 
     // Daily View Actions
     elements.btnReadToday.addEventListener('click', () => {
@@ -1322,7 +1751,9 @@
       } else if (e.key === '?') {
         elements.shortcutsModal.classList.toggle('hidden');
       } else if (e.key === 'Escape') {
-        elements.shortcutsModal.classList.add('hidden');
+        if (elements.shortcutsModal) elements.shortcutsModal.classList.add('hidden');
+        if (elements.syncModal) elements.syncModal.classList.add('hidden');
+        if (elements.settingsModal) elements.settingsModal.classList.add('hidden');
         closeFindBar();
         switchView('daily');
       }
@@ -1354,6 +1785,27 @@
     renderSaptahSchedule();
     renderAarti('kakad');
     renderSayings('all', '');
+
+    // Check for previous sync time
+    const lastSync = localStorage.getItem('sai_last_synced_time');
+    if (lastSync && elements.wifiLastSynced) {
+      elements.wifiLastSynced.textContent = `Last synced: Today at ${lastSync}`;
+    }
+
+    // Hide Install button if running in native Capacitor APK or standalone PWA
+    const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.Capacitor !== undefined || window.navigator.standalone;
+    const installBtn = document.getElementById('btn-pwa-install');
+    if (isStandalone && installBtn) {
+      installBtn.style.display = 'none';
+      installBtn.classList.add('hidden');
+    }
+
+    // Attempt silent Wi-Fi auto-sync on launch
+    setTimeout(() => {
+      if (elements.syncAutoLaunch && elements.syncAutoLaunch.checked) {
+        performWifiSync(true);
+      }
+    }, 600);
 
     // Initialize notifications
     initNotificationSystem();

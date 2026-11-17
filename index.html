@@ -31,8 +31,8 @@
       </div>
     </div>
 
-    <!-- Main Navigation Tabs -->
-    <nav class="nav-tabs">
+    <!-- Main Navigation Tabs (Desktop & Tablet Landscape) -->
+    <nav class="nav-tabs desktop-only">
       <button class="nav-tab-btn active" data-view="daily">
         <span class="tab-icon">📖</span> Today's Read
       </button>
@@ -50,24 +50,16 @@
       </button>
     </nav>
 
-    <!-- Reading Controls (Drone, Bell, Keyboard, Theme & Font Size) -->
+    <!-- Reading Controls (Drone, Bell, Sync & Settings) -->
     <div class="header-right">
-      <button id="btn-pwa-install" class="icon-ctrl-btn pwa-install-btn hidden" title="Install App on Tablet">📲 Install App</button>
+      <button id="btn-pwa-install" class="icon-ctrl-btn pwa-install-btn hidden" title="Install App on Device">📲 Install</button>
       <button id="btn-ambient-tanpura" class="icon-ctrl-btn" title="Ambient Tanpura Meditation Drone (M)">🪕</button>
       <button id="btn-temple-bell" class="icon-ctrl-btn" title="Ring Temple Bell (B)">🔔</button>
-      <button id="btn-shortcuts-help" class="icon-ctrl-btn" title="Keyboard Shortcuts (?)">⌨️</button>
-
-      <div class="font-controls" title="Adjust Font Size (+ / -)">
-        <button id="btn-font-dec" class="ctrl-btn" title="Decrease Font">A-</button>
-        <button id="btn-font-reset" class="ctrl-btn" title="Default Font">A</button>
-        <button id="btn-font-inc" class="ctrl-btn" title="Increase Font">A+</button>
-      </div>
-
-      <div class="theme-controls">
-        <button class="theme-btn sepia active" data-theme="sepia" title="Warm Sepia Theme (T)"></button>
-        <button class="theme-btn light" data-theme="light" title="Day Light Theme (T)"></button>
-        <button class="theme-btn dark" data-theme="dark" title="Night Dark Theme (T)"></button>
-      </div>
+      <button id="btn-sync-modal" class="icon-ctrl-btn sync-btn-highlight" title="Cross-Device Story & Save Sync">
+        <span class="sync-icon-symbol">🔄</span>
+        <span class="sync-badge-indicator" id="header-sync-dot"></span>
+      </button>
+      <button id="btn-settings-modal" class="icon-ctrl-btn" title="Appearance & Settings">⚙️</button>
     </div>
   </header>
 
@@ -87,95 +79,98 @@
     
     <!-- VIEW 1: DAILY DASHBOARD (Default) -->
     <section id="view-daily" class="view-panel active">
-      <div class="daily-hero-card">
-        <div class="hero-image-wrapper">
-          <img src="assets/saibaba.jpg" alt="Shirdi Sai Baba" class="hero-portrait">
-        </div>
-        <div class="hero-content">
-          <div class="daily-greeting">
-            <span class="date-badge" id="current-date-badge">Today</span>
-            <span class="quote-badge">"Shraddha & Saburi"</span>
+      <div class="daily-dashboard-grid">
+        <!-- Column 1: Daily Hero Card with Baba's Portrait & Wisdom -->
+        <div class="daily-hero-card">
+          <div class="hero-image-wrapper">
+            <img src="assets/saibaba.jpg" alt="Shirdi Sai Baba" class="hero-portrait">
           </div>
-          <h1 class="hero-headline">Om Sai Ram</h1>
-          
-          <!-- Dynamic Daily Blessing / Saying -->
-          <div class="dynamic-blessing-box">
-            <p class="hero-tagline" id="daily-dynamic-saying">
-              "Whoever puts their feet on Shirdi soil, their sufferings will come to an end."
-            </p>
-            <button id="btn-refresh-saying" class="btn-refresh-blessing" title="Draw another divine blessing">
-              ✨ Draw New Blessing
-            </button>
-          </div>
-
-          <div class="streak-banner">
-            <div class="streak-stat">
-              <span class="stat-number" id="stat-completed-count">0</span>
-              <span class="stat-label">Chapters Read</span>
+          <div class="hero-content">
+            <div class="daily-greeting">
+              <span class="date-badge" id="current-date-badge">Today</span>
+              <span class="quote-badge">"Shraddha & Saburi"</span>
             </div>
-            <div class="streak-divider"></div>
-            <div class="streak-stat">
-              <span class="stat-number" id="stat-streak-count">1</span>
-              <span class="stat-label">Day Streak 🔥</span>
-            </div>
-            <div class="streak-divider"></div>
-            <div class="streak-stat">
-              <span class="stat-number" id="stat-remaining-count">48</span>
-              <span class="stat-label">To Complete</span>
-            </div>
-          </div>
-
-          <!-- Quick Action Controls (Resume Bookmark & Daily Wisdom Notification) -->
-          <div class="hero-actions-toolbar">
-            <div id="resume-reading-container" class="resume-reading-box" style="display: none;">
-              <div class="resume-meta">
-                <span class="resume-icon">🔖</span>
-                <div class="resume-text">
-                  <span class="resume-label">LAST READ BOOKMARK</span>
-                  <span class="resume-chapter-name" id="resume-chapter-name">Chapter 1</span>
-                </div>
-              </div>
-              <button id="btn-resume-bookmark" class="btn-resume-action" title="Jump straight to where you left off">
-                Continue Reading ➔
+            <h1 class="hero-headline">Om Sai Ram</h1>
+            
+            <!-- Dynamic Daily Blessing / Saying -->
+            <div class="dynamic-blessing-box">
+              <p class="hero-tagline" id="daily-dynamic-saying">
+                "Whoever puts their feet on Shirdi soil, their sufferings will come to an end."
+              </p>
+              <button id="btn-refresh-saying" class="btn-refresh-blessing" title="Draw another divine blessing">
+                ✨ Draw New Blessing
               </button>
             </div>
 
-            <button id="btn-toggle-notification" class="btn-notification-action" title="Toggle Daily Morning Wisdom Notification">
-              🔔 Enable Daily Morning Wisdom
-            </button>
+            <div class="streak-banner">
+              <div class="streak-stat">
+                <span class="stat-number" id="stat-completed-count">0</span>
+                <span class="stat-label">Chapters Read</span>
+              </div>
+              <div class="streak-divider"></div>
+              <div class="streak-stat">
+                <span class="stat-number" id="stat-streak-count">1</span>
+                <span class="stat-label">Day Streak 🔥</span>
+              </div>
+              <div class="streak-divider"></div>
+              <div class="streak-stat">
+                <span class="stat-number" id="stat-remaining-count">48</span>
+                <span class="stat-label">To Complete</span>
+              </div>
+            </div>
+
+            <!-- Quick Action Controls (Resume Bookmark & Daily Wisdom Notification) -->
+            <div class="hero-actions-toolbar">
+              <div id="resume-reading-container" class="resume-reading-box" style="display: none;">
+                <div class="resume-meta">
+                  <span class="resume-icon">🔖</span>
+                  <div class="resume-text">
+                    <span class="resume-label">LAST READ BOOKMARK</span>
+                    <span class="resume-chapter-name" id="resume-chapter-name">Chapter 1</span>
+                  </div>
+                </div>
+                <button id="btn-resume-bookmark" class="btn-resume-action" title="Jump straight to where you left off">
+                  Continue Reading ➔
+                </button>
+              </div>
+
+              <button id="btn-toggle-notification" class="btn-notification-action" title="Toggle Daily Morning Wisdom Notification">
+                🔔 Enable Daily Morning Wisdom
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: Today's Assigned Chapter Focus Card -->
+        <div class="today-focus-card">
+          <div class="card-eyebrow">
+            <span class="pulsing-dot"></span>
+            <span>TODAY'S DAILY READING</span>
+          </div>
+          
+          <div class="chapter-card-body">
+            <div class="chapter-header-info">
+              <span class="chap-badge" id="daily-chap-badge">Chapter 1</span>
+              <span class="read-time-badge" id="daily-read-time">~10 min read</span>
+            </div>
+            <h2 class="daily-chap-title" id="daily-chap-title">The Story of Grinding Wheat and Its Philosophical Significance</h2>
+            <div class="daily-topics-list" id="daily-chap-topics">
+              <!-- Topics loaded dynamically -->
+            </div>
+
+            <div class="daily-action-row">
+              <button id="btn-read-today" class="btn-primary-read">
+                <span class="btn-icon">📖</span> Read Today's Chapter
+              </button>
+              <button id="btn-mark-today-complete" class="btn-secondary-complete">
+                <span class="btn-check">✓</span> Mark Chapter Completed
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Today's Assigned Chapter Card -->
-      <div class="today-focus-card">
-        <div class="card-eyebrow">
-          <span class="pulsing-dot"></span>
-          <span>TODAY'S DAILY READING</span>
-        </div>
-        
-        <div class="chapter-card-body">
-          <div class="chapter-header-info">
-            <span class="chap-badge" id="daily-chap-badge">Chapter 1</span>
-            <span class="read-time-badge" id="daily-read-time">~10 min read</span>
-          </div>
-          <h2 class="daily-chap-title" id="daily-chap-title">The Story of Grinding Wheat and Its Philosophical Significance</h2>
-          <div class="daily-topics-list" id="daily-chap-topics">
-            <!-- Topics loaded dynamically -->
-          </div>
-
-          <div class="daily-action-row">
-            <button id="btn-read-today" class="btn-primary-read">
-              <span class="btn-icon">📖</span> Read Today's Chapter
-            </button>
-            <button id="btn-mark-today-complete" class="btn-secondary-complete">
-              <span class="btn-check">✓</span> Mark Chapter Completed
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Parayan Progress Tracker -->
+      <!-- Quick Parayan Progress Tracker (Full Width Span) -->
       <div class="parayan-progress-card">
         <div class="progress-card-header">
           <div>
@@ -263,6 +258,16 @@
           </div>
         </footer>
       </article>
+
+      <!-- Floating Ergonomic Thumb Toolbar for Comfortable Reading -->
+      <div class="reader-floating-pill" id="reader-floating-pill">
+        <button id="btn-pill-prev" class="pill-btn" title="Previous Chapter">‹ Prev</button>
+        <button id="btn-pill-font-dec" class="pill-btn" title="Smaller Font Size">A-</button>
+        <button id="btn-pill-font-inc" class="pill-btn" title="Larger Font Size">A+</button>
+        <button id="btn-pill-theme" class="pill-btn" title="Cycle Reading Theme">🎨 Theme</button>
+        <button id="btn-pill-complete" class="pill-btn pill-btn-done" title="Mark Chapter Done">✓ Done</button>
+        <button id="btn-pill-next" class="pill-btn" title="Next Chapter">Next ›</button>
+      </div>
     </section>
 
     <!-- VIEW 3: ALL CHAPTERS DIRECTORY -->
@@ -394,6 +399,201 @@
       </div>
     </div>
   </div>
+
+  <!-- Cross-Device Story & Save Sync Modal -->
+  <div id="sync-modal" class="modal-overlay hidden">
+    <div class="modal-card sync-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="modal-icon">🔄</span>
+          <div>
+            <h3>Cross-Device Story & Save Sync</h3>
+            <p class="modal-subtitle">Keep reading progress, bookmarks & reflections synced between Mac, Tablet & Phone</p>
+          </div>
+        </div>
+        <button id="btn-close-sync-modal" class="btn-close-modal">✕</button>
+      </div>
+
+      <div class="sync-modal-body">
+        <!-- Tab Switcher for Sync Options -->
+        <div class="sync-tabs">
+          <button class="sync-tab-btn active" data-tab="wifi">📶 Local Wi-Fi Auto-Sync</button>
+          <button class="sync-tab-btn" data-tab="key">🔑 Portable Sync Key</button>
+          <button class="sync-tab-btn" data-tab="backup">💾 File Backup</button>
+        </div>
+
+        <!-- Panel 1: Local Wi-Fi Sync -->
+        <div class="sync-tab-panel active" id="sync-panel-wifi">
+          <div class="sync-status-box">
+            <div class="sync-status-indicator">
+              <span class="status-pulse-dot" id="wifi-status-dot"></span>
+              <span id="wifi-status-text">Ready to sync</span>
+            </div>
+            <span class="sync-last-time" id="wifi-last-synced">Last synced: Never</span>
+          </div>
+
+          <div class="sync-form-group">
+            <label for="sync-server-input" class="sync-label">Mac / Server Wi-Fi Address:</label>
+            <div class="sync-input-row">
+              <input type="text" id="sync-server-input" class="sync-input" placeholder="http://192.168.68.102:8080" value="http://192.168.68.102:8080">
+              <button id="btn-do-wifi-sync" class="btn-primary-sync">
+                <span class="sync-spin-icon">🔄</span> Sync Now
+              </button>
+            </div>
+            <p class="sync-hint">Make sure your Mac and Tablet/Phone are on the same Wi-Fi network.</p>
+          </div>
+
+          <div class="sync-options-row">
+            <label class="sync-checkbox-label">
+              <input type="checkbox" id="sync-auto-launch" checked>
+              <span>Auto-sync automatically on app launch</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Panel 2: Portable Base64 Key -->
+        <div class="sync-tab-panel" id="sync-panel-key">
+          <p class="sync-panel-desc">Transfer your reading position, streaks, and reflections to any device without needing local Wi-Fi.</p>
+          <div class="sync-key-actions">
+            <button id="btn-copy-sync-key" class="btn-secondary-sync">📋 Copy My Sync Key to Clipboard</button>
+          </div>
+          <div class="sync-form-group" style="margin-top: 14px;">
+            <label for="sync-key-input" class="sync-label">Paste Sync Key from Another Device:</label>
+            <textarea id="sync-key-input" class="sync-key-textarea" placeholder="Paste your generated sync key here..."></textarea>
+            <button id="btn-apply-sync-key" class="btn-primary-sync" style="margin-top: 8px; width: 100%;">
+              📥 Restore Progress from Key
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel 3: File Backup & Restore -->
+        <div class="sync-tab-panel" id="sync-panel-backup">
+          <p class="sync-panel-desc">Download a complete offline JSON backup of your progress, streaks, bookmarks, and reflections.</p>
+          <div class="backup-action-grid">
+            <button id="btn-download-backup" class="btn-secondary-sync">
+              💾 Export Backup File (.json)
+            </button>
+            <label class="btn-secondary-sync file-upload-btn">
+              📂 Restore Backup File
+              <input type="file" id="backup-file-input" accept=".json" style="display: none;">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings & Reading Customization Modal -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-card settings-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="modal-icon">⚙️</span>
+          <div>
+            <h3>Reading & Display Settings</h3>
+            <p class="modal-subtitle">Customize themes, text sizes, and devotional ambience</p>
+          </div>
+        </div>
+        <button id="btn-close-settings-modal" class="btn-close-modal">✕</button>
+      </div>
+
+      <div class="settings-modal-body">
+        <!-- Reading Theme Selector -->
+        <div class="settings-section">
+          <h4 class="settings-section-title">Reading Theme</h4>
+          <div class="theme-options-grid">
+            <button class="theme-card-option" data-theme="sepia">
+              <span class="theme-swatch sepia-swatch"></span>
+              <div class="theme-info">
+                <strong>Warm Sepia</strong>
+                <span>Holy Book Parchment</span>
+              </div>
+            </button>
+            <button class="theme-card-option" data-theme="light">
+              <span class="theme-swatch light-swatch"></span>
+              <div class="theme-info">
+                <strong>Day Light</strong>
+                <span>Crisp Modern View</span>
+              </div>
+            </button>
+            <button class="theme-card-option" data-theme="dark">
+              <span class="theme-swatch dark-swatch"></span>
+              <div class="theme-info">
+                <strong>Night Dark</strong>
+                <span>Gentle On Eyes</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Font Size Adjuster -->
+        <div class="settings-section">
+          <h4 class="settings-section-title">Reading Font Size</h4>
+          <div class="font-scale-row">
+            <button class="font-scale-btn" data-size="font-size-sm">Small</button>
+            <button class="font-scale-btn active" data-size="font-size-md">Normal</button>
+            <button class="font-scale-btn" data-size="font-size-lg">Large</button>
+            <button class="font-scale-btn" data-size="font-size-xl">Extra Large</button>
+          </div>
+        </div>
+
+        <!-- Devotional Audio Atmosphere -->
+        <div class="settings-section">
+          <h4 class="settings-section-title">Devotional Atmosphere</h4>
+          <div class="settings-toggle-row">
+            <div>
+              <strong>Ambient Tanpura Drone</strong>
+              <p>Continuous sacred meditative humming (432Hz C#)</p>
+            </div>
+            <button id="btn-settings-tanpura" class="btn-pill-toggle">Toggle Drone 🪕</button>
+          </div>
+          <div class="settings-toggle-row" style="margin-top: 10px;">
+            <div>
+              <strong>Temple Chime Bell</strong>
+              <p>Sacred bell sound on chapter completions</p>
+            </div>
+            <button id="btn-settings-bell" class="btn-pill-toggle">Ring Bell 🔔</button>
+          </div>
+        </div>
+
+        <!-- Desktop Keyboard Shortcuts Reference -->
+        <div class="settings-section">
+          <h4 class="settings-section-title">Keyboard Shortcuts (Mac & Desktop)</h4>
+          <div class="shortcuts-list compact-shortcuts">
+            <div class="shortcut-row"><kbd>[</kbd> / <kbd>]</kbd> <span>Previous / Next Chapter</span></div>
+            <div class="shortcut-row"><kbd>T</kbd> <span>Cycle Theme</span></div>
+            <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd> <span>Adjust Font Size</span></div>
+            <div class="shortcut-row"><kbd>B</kbd> <span>Ring Temple Bell</span></div>
+            <div class="shortcut-row"><kbd>M</kbd> <span>Toggle Ambient Drone</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile & Tablet Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mobile-nav-btn active" data-view="daily">
+      <span class="mobile-nav-icon">📖</span>
+      <span class="mobile-nav-text">Today</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="chapters">
+      <span class="mobile-nav-icon">📑</span>
+      <span class="mobile-nav-text">Chapters</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="saptah">
+      <span class="mobile-nav-icon">🗓️</span>
+      <span class="mobile-nav-text">Saptah</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="aartis">
+      <span class="mobile-nav-icon">🪔</span>
+      <span class="mobile-nav-text">Aartis</span>
+    </button>
+    <button class="mobile-nav-btn" data-view="sayings">
+      <span class="mobile-nav-icon">✨</span>
+      <span class="mobile-nav-text">Sayings</span>
+    </button>
+  </nav>
 
   <!-- Load bundled local data -->
   <script src="data/bundle.js"></script>

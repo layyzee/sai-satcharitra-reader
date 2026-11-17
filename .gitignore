@@ -4,7 +4,14 @@ Thumbs.db
 
 # Large compiled binary installers
 *.dmg
+*.apk
+SaiSatcharitra.apk
 *.app/
+dist/
+www/
+
+# Local state
+data/sync_store.json
 
 # Node & package caches
 node_modules/
