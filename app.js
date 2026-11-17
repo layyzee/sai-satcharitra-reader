@@ -542,15 +542,24 @@
 
     updateSyncStatus("Contacting Mac server...", "syncing");
     try {
-      const getRes = await fetch(`${serverBase}/api/sync`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        cache: 'no-cache'
-      });
-
       let remoteData = {};
-      if (getRes.ok) {
-        remoteData = await getRes.json();
+      const capHttp = window.Capacitor?.Plugins?.CapacitorHttp;
+
+      if (capHttp) {
+        const res = await capHttp.get({
+          url: `${serverBase}/api/sync`,
+          headers: { 'Accept': 'application/json' }
+        });
+        remoteData = (typeof res.data === 'string') ? JSON.parse(res.data) : (res.data || {});
+      } else {
+        const getRes = await fetch(`${serverBase}/api/sync`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          cache: 'no-cache'
+        });
+        if (getRes.ok) {
+          remoteData = await getRes.json();
+        }
       }
 
       // Merge remote with local
@@ -562,11 +571,19 @@
 
       // Send merged state back to server
       const payload = getSyncPayload();
-      await fetch(`${serverBase}/api/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      if (capHttp) {
+        await capHttp.post({
+          url: `${serverBase}/api/sync`,
+          headers: { 'Content-Type': 'application/json' },
+          data: payload
+        });
+      } else {
+        await fetch(`${serverBase}/api/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      }
 
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       localStorage.setItem('sai_last_synced_time', nowTime);
@@ -1344,33 +1361,45 @@
     });
 
     // Brand logo returns to daily home
-    elements.btnBrandHome.addEventListener('click', () => switchView('daily'));
+    if (elements.btnBrandHome) {
+      elements.btnBrandHome.addEventListener('click', () => switchView('daily'));
+    }
 
     // Temple Bell Chime
-    elements.btnTempleBell.addEventListener('click', () => {
-      playTempleBell();
-      showToast("Om Sai Ram", "🔔");
-    });
+    if (elements.btnTempleBell) {
+      elements.btnTempleBell.addEventListener('click', () => {
+        playTempleBell();
+        showToast("Om Sai Ram", "🔔");
+      });
+    }
 
-    // Shortcuts Modal
-    elements.btnShortcutsHelp.addEventListener('click', () => {
-      elements.shortcutsModal.classList.remove('hidden');
-    });
-    elements.btnCloseModal.addEventListener('click', () => {
-      elements.shortcutsModal.classList.add('hidden');
-    });
-    elements.shortcutsModal.addEventListener('click', (e) => {
-      if (e.target === elements.shortcutsModal) elements.shortcutsModal.classList.add('hidden');
-    });
+    // Shortcuts Modal (Mac Desktop)
+    if (elements.btnShortcutsHelp && elements.shortcutsModal) {
+      elements.btnShortcutsHelp.addEventListener('click', () => {
+        elements.shortcutsModal.classList.remove('hidden');
+      });
+    }
+    if (elements.btnCloseModal && elements.shortcutsModal) {
+      elements.btnCloseModal.addEventListener('click', () => {
+        elements.shortcutsModal.classList.add('hidden');
+      });
+    }
+    if (elements.shortcutsModal) {
+      elements.shortcutsModal.addEventListener('click', (e) => {
+        if (e.target === elements.shortcutsModal) elements.shortcutsModal.classList.add('hidden');
+      });
+    }
 
     // Dynamic Blessing Refresh on Home
-    elements.btnRefreshSaying.addEventListener('click', () => {
-      const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
-      const randomIdx = Math.floor(Math.random() * sayings.length);
-      setDynamicSaying(randomIdx);
-      playTempleBell();
-      showToast("Divine Blessing refreshed ✨", "✨");
-    });
+    if (elements.btnRefreshSaying) {
+      elements.btnRefreshSaying.addEventListener('click', () => {
+        const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
+        const randomIdx = Math.floor(Math.random() * sayings.length);
+        setDynamicSaying(randomIdx);
+        playTempleBell();
+        showToast("Divine Blessing refreshed ✨", "✨");
+      });
+    }
 
     // Theme Switches
     elements.themeBtns.forEach(btn => {

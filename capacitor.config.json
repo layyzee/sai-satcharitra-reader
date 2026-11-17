@@ -3,6 +3,10 @@
   "appName": "Sri Sai Satcharitra",
   "webDir": "www",
   "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  },
   "android": {
     "backgroundColor": "#faf4e8"
   }
