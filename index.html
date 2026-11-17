@@ -2,8 +2,20 @@
 <html lang="en" data-theme="sepia">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>Sri Sai Satcharitra - Daily Nitya Parayan</title>
+  
+  <!-- PWA & Android Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#b45309">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Sai Satcharitra">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/icon.png">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="font-size-md">
@@ -40,6 +52,7 @@
 
     <!-- Reading Controls (Drone, Bell, Keyboard, Theme & Font Size) -->
     <div class="header-right">
+      <button id="btn-pwa-install" class="icon-ctrl-btn pwa-install-btn hidden" title="Install App on Tablet">📲 Install App</button>
       <button id="btn-ambient-tanpura" class="icon-ctrl-btn" title="Ambient Tanpura Meditation Drone (M)">🪕</button>
       <button id="btn-temple-bell" class="icon-ctrl-btn" title="Ring Temple Bell (B)">🔔</button>
       <button id="btn-shortcuts-help" class="icon-ctrl-btn" title="Keyboard Shortcuts (?)">⌨️</button>
@@ -386,5 +399,43 @@
   <script src="data/bundle.js"></script>
   <!-- Main Application Logic -->
   <script src="app.js"></script>
+
+  <!-- PWA Offline Service Worker Registration & Tablet Install Handler -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(reg => console.log('ServiceWorker registered with scope:', reg.scope))
+          .catch(err => console.log('ServiceWorker registration failed:', err));
+      });
+    }
+
+    // Android tablet install banner handler
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const installBtn = document.getElementById('btn-pwa-install');
+      if (installBtn) {
+        installBtn.classList.remove('hidden');
+        installBtn.addEventListener('click', () => {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+              console.log('User installed Sai Satcharitra on tablet');
+            }
+            deferredPrompt = null;
+            installBtn.classList.add('hidden');
+          });
+        });
+      }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      console.log('Sai Satcharitra PWA successfully installed');
+      const installBtn = document.getElementById('btn-pwa-install');
+      if (installBtn) installBtn.classList.add('hidden');
+    });
+  </script>
 </body>
 </html>

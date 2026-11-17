@@ -1848,3 +1848,66 @@ kbd {
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   Android Tablet & PWA Enhancements
+   ========================================================================== */
+
+.pwa-install-btn {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  animation: pulseGlow 2.5s infinite;
+}
+
+.pwa-install-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(180, 83, 9, 0.5);
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(180, 83, 9, 0.3); }
+  50% { box-shadow: 0 2px 14px rgba(217, 119, 6, 0.65); }
+}
+
+/* Tablet Optimizations (Landscape & Portrait 600px to 1280px) */
+@media (min-width: 601px) and (max-width: 1280px) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .app-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+
+  .reader-container {
+    max-width: 820px;
+    margin: 0 auto;
+    line-height: 1.85;
+    letter-spacing: 0.015em;
+  }
+
+  .ctrl-btn, .icon-ctrl-btn {
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 16px;
+  }
+
+  .nav-tab-btn {
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+}

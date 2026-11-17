@@ -1,0 +1,26 @@
+{
+  "name": "Sri Sai Satcharitra",
+  "short_name": "Sai Satcharitra",
+  "description": "100% Offline Daily Devotional Reader for Sri Sai Satcharitra",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#faf4e8",
+  "theme_color": "#b45309",
+  "categories": ["books", "lifestyle", "education"],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

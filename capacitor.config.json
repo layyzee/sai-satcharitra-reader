@@ -1,0 +1,9 @@
+{
+  "appId": "com.layyzee.saisatcharitra",
+  "appName": "Sri Sai Satcharitra",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#faf4e8"
+  }
+}
