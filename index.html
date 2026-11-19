@@ -417,13 +417,53 @@
       <div class="sync-modal-body">
         <!-- Tab Switcher for Sync Options -->
         <div class="sync-tabs">
-          <button class="sync-tab-btn active" data-tab="wifi">📶 Local Wi-Fi Auto-Sync</button>
-          <button class="sync-tab-btn" data-tab="key">🔑 Portable Sync Key</button>
+          <button class="sync-tab-btn active" data-tab="cloud">☁️ Cloud Sync</button>
+          <button class="sync-tab-btn" data-tab="key">🔑 Sync Key & Link</button>
+          <button class="sync-tab-btn" data-tab="wifi">📶 Local Wi-Fi</button>
           <button class="sync-tab-btn" data-tab="backup">💾 File Backup</button>
         </div>
 
+        <!-- Panel 0: ☁️ Free Cloud Sync -->
+        <div class="sync-tab-panel active" id="sync-panel-cloud">
+          <div class="sync-status-box">
+            <div class="sync-status-indicator">
+              <span class="status-pulse-dot" id="cloud-status-dot"></span>
+              <span id="cloud-status-text">Cloud Sync Ready</span>
+            </div>
+            <span class="sync-last-time" id="cloud-last-synced">Last synced: Never</span>
+          </div>
+
+          <p class="sync-panel-desc">Sync your reading progress across MacBook, Tablet, and Phone using free, permanent cloud storage (Strictly ₹0).</p>
+
+          <div class="sync-key-actions" style="display: flex; gap: 8px; margin-top: 10px;">
+            <button id="btn-cloud-pull" class="btn-primary-sync" style="flex: 1;">
+              📥 Pull from Cloud (Restore Progress)
+            </button>
+            <button id="btn-cloud-push" class="btn-secondary-sync" style="flex: 1;">
+              📤 Push to Cloud (Save to Cloud)
+            </button>
+          </div>
+
+          <div class="sync-form-group" style="margin-top: 14px;">
+            <label for="cloud-gist-id" class="sync-label">Cloud Sync ID (Pre-configured):</label>
+            <input type="text" id="cloud-gist-id" class="sync-input" value="96b05796b4e3181da4c7c94023006c41" placeholder="Gist ID">
+            <p class="sync-hint">100% Free & Zero Setup. Pulling works on any device without logging in.</p>
+          </div>
+
+          <div class="sync-form-group" style="margin-top: 10px;">
+            <details style="font-size: 0.82rem; color: var(--text-muted); cursor: pointer;">
+              <summary>⚙️ Optional: Direct Tablet/Phone Push Token</summary>
+              <div style="margin-top: 8px;">
+                <label for="cloud-gist-token" class="sync-label">GitHub Gist Token:</label>
+                <input type="password" id="cloud-gist-token" class="sync-input" placeholder="ghp_... (Only required to push changes from Tablet)">
+                <button id="btn-save-cloud-token" class="btn-secondary-sync" style="margin-top: 6px; font-size: 0.8rem; padding: 4px 10px;">Save Token Locally</button>
+              </div>
+            </details>
+          </div>
+        </div>
+
         <!-- Panel 1: Local Wi-Fi Sync -->
-        <div class="sync-tab-panel active" id="sync-panel-wifi">
+        <div class="sync-tab-panel" id="sync-panel-wifi">
           <div class="sync-status-box">
             <div class="sync-status-indicator">
               <span class="status-pulse-dot" id="wifi-status-dot"></span>
@@ -451,12 +491,16 @@
           </div>
         </div>
 
-        <!-- Panel 2: Portable Base64 Key -->
+        <!-- Panel 2: Portable Base64 Key & Direct Sync Link -->
         <div class="sync-tab-panel" id="sync-panel-key">
-          <p class="sync-panel-desc">Transfer your reading position, streaks, and reflections to any device without needing local Wi-Fi.</p>
-          <div class="sync-key-actions">
-            <button id="btn-copy-sync-key" class="btn-secondary-sync">📋 Copy My Sync Key to Clipboard</button>
+          <p class="sync-panel-desc">Transfer your reading position to any device without needing Wi-Fi or accounts.</p>
+          
+          <div class="sync-key-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="btn-copy-sync-key" class="btn-secondary-sync" style="flex: 1;">📋 Copy Sync Key</button>
+            <button id="btn-copy-sync-link" class="btn-secondary-sync" style="flex: 1;">🔗 Copy Sync Link</button>
+            <button id="btn-whatsapp-sync" class="btn-secondary-sync" style="flex: 1;">💬 Share on WhatsApp</button>
           </div>
+
           <div class="sync-form-group" style="margin-top: 14px;">
             <label for="sync-key-input" class="sync-label">Paste Sync Key from Another Device:</label>
             <textarea id="sync-key-input" class="sync-key-textarea" placeholder="Paste your generated sync key here..."></textarea>

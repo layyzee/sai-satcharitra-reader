@@ -141,6 +141,16 @@
     btnCloseSyncModal: document.getElementById('btn-close-sync-modal'),
     syncTabBtns: document.querySelectorAll('.sync-tab-btn'),
     syncTabPanels: document.querySelectorAll('.sync-tab-panel'),
+    cloudStatusDot: document.getElementById('cloud-status-dot'),
+    cloudStatusText: document.getElementById('cloud-status-text'),
+    cloudLastSynced: document.getElementById('cloud-last-synced'),
+    cloudGistId: document.getElementById('cloud-gist-id'),
+    cloudGistToken: document.getElementById('cloud-gist-token'),
+    btnCloudPull: document.getElementById('btn-cloud-pull'),
+    btnCloudPush: document.getElementById('btn-cloud-push'),
+    btnSaveCloudToken: document.getElementById('btn-save-cloud-token'),
+    btnCopySyncLink: document.getElementById('btn-copy-sync-link'),
+    btnWhatsappSync: document.getElementById('btn-whatsapp-sync'),
     wifiStatusDot: document.getElementById('wifi-status-dot'),
     wifiStatusText: document.getElementById('wifi-status-text'),
     wifiLastSynced: document.getElementById('wifi-last-synced'),
@@ -608,6 +618,163 @@
       updateSyncStatus("Could not reach Mac server", "error");
       if (!silent) {
         showToast("Could not reach Mac server on Wi-Fi. Check address.", "⚠️");
+      }
+    }
+  }
+
+  function updateCloudStatus(text, type = "normal") {
+    if (elements.cloudStatusText) elements.cloudStatusText.textContent = text;
+    if (elements.cloudStatusDot) {
+      elements.cloudStatusDot.style.backgroundColor = (type === "success") ? "var(--success)" : (type === "syncing" ? "var(--accent-saffron)" : (type === "error" ? "#dc2626" : "var(--primary)"));
+    }
+  }
+
+  async function pullFromCloud(silent = false) {
+    const gistId = (elements.cloudGistId ? elements.cloudGistId.value.trim() : '') || '96b05796b4e3181da4c7c94023006c41';
+    updateCloudStatus("Connecting to Cloud...", "syncing");
+    try {
+      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' },
+        cache: 'no-cache'
+      });
+      if (!res.ok) throw new Error(`Cloud response code: ${res.status}`);
+      const data = await res.json();
+      const fileData = data.files && (data.files['sync_store.json'] || Object.values(data.files)[0]);
+      if (!fileData || !fileData.content) throw new Error("No sync data found in cloud");
+      
+      const remote = JSON.parse(fileData.content);
+      state = mergeSyncStates(state, remote);
+      saveState();
+      saveFavorites();
+      saveReflections();
+
+      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      localStorage.setItem('sai_last_cloud_sync', nowTime);
+      if (elements.cloudLastSynced) {
+        elements.cloudLastSynced.textContent = `Last synced: Today at ${nowTime}`;
+      }
+      updateCloudStatus("Cloud Synced ✓", "success");
+
+      updateDashboardUI();
+      updateBookmarkUI();
+      applyTheme(state.theme);
+      applyFontSize(state.fontSize);
+      renderChaptersDirectory();
+      renderSaptahSchedule();
+
+      showToast(`Progress restored! Chapter ${state.activeReadingChapter} (Streak: ${state.streak} days)`, "🌟");
+    } catch (err) {
+      console.error(err);
+      updateCloudStatus("Sync Failed", "error");
+      if (!silent) showToast(`Cloud sync error: ${err.message}`, "⚠️");
+    }
+  }
+
+  async function pushToCloud() {
+    const gistId = (elements.cloudGistId ? elements.cloudGistId.value.trim() : '') || '96b05796b4e3181da4c7c94023006c41';
+    let token = elements.cloudGistToken ? elements.cloudGistToken.value.trim() : '';
+    if (!token) token = localStorage.getItem('sai_gist_token') || '';
+
+    const payload = getSyncPayload();
+    updateCloudStatus("Saving to Cloud...", "syncing");
+
+    try {
+      if (token) {
+        const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            description: "Sai Satcharitra Devotional Sync Store",
+            files: {
+              "sync_store.json": {
+                content: JSON.stringify(payload, null, 2)
+              }
+            }
+          })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      } else {
+        const serverBase = window.location.origin.includes(':8080') ? window.location.origin : 'http://127.0.0.1:8080';
+        const res = await fetch(`${serverBase}/api/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Could not reach local server. Add an optional token for direct mobile upload.");
+      }
+
+      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (elements.cloudLastSynced) {
+        elements.cloudLastSynced.textContent = `Last pushed: Today at ${nowTime}`;
+      }
+      updateCloudStatus("Saved to Cloud ✓", "success");
+      showToast("Progress saved to Cloud! ✓", "🌟");
+    } catch (err) {
+      console.error(err);
+      updateCloudStatus("Save Failed", "error");
+      showToast(err.message, "⚠️");
+    }
+  }
+
+  function copySyncLink() {
+    try {
+      const payload = getSyncPayload();
+      const jsonStr = JSON.stringify(payload);
+      const b64Key = btoa(unescape(encodeURIComponent(jsonStr)));
+      const syncUrl = `https://layyzee.github.io/sai-satcharitra-reader/#sync=${b64Key}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(syncUrl).then(() => {
+          showToast("Sync Link copied to clipboard! 🔗", "✓");
+        }).catch(() => {
+          prompt("Copy your Sync Link:", syncUrl);
+        });
+      } else {
+        prompt("Copy your Sync Link:", syncUrl);
+      }
+    } catch (e) {
+      showToast("Error generating sync link", "⚠️");
+    }
+  }
+
+  function shareWhatsApp() {
+    try {
+      const payload = getSyncPayload();
+      const jsonStr = JSON.stringify(payload);
+      const b64Key = btoa(unescape(encodeURIComponent(jsonStr)));
+      const syncUrl = `https://layyzee.github.io/sai-satcharitra-reader/#sync=${b64Key}`;
+      const msg = encodeURIComponent(`🕉️ My Sai Satcharitra Reading Progress:\nChapter: ${payload.activeReadingChapter || 20}\nStreak: ${payload.streak || 4} Days\n\nTap this link on your device to sync immediately:\n${syncUrl}`);
+      window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+    } catch (e) {
+      showToast("Error opening WhatsApp share", "⚠️");
+    }
+  }
+
+  function checkUrlSyncParam() {
+    if (window.location.hash && window.location.hash.startsWith('#sync=')) {
+      const key = window.location.hash.replace('#sync=', '').trim();
+      try {
+        const decoded = decodeURIComponent(escape(atob(key)));
+        const parsed = JSON.parse(decoded);
+        state = mergeSyncStates(state, parsed);
+        saveState();
+        saveFavorites();
+        saveReflections();
+        updateDashboardUI();
+        updateBookmarkUI();
+        applyTheme(state.theme);
+        applyFontSize(state.fontSize);
+        renderChaptersDirectory();
+        renderSaptahSchedule();
+        showToast(`Progress restored! Chapter ${state.activeReadingChapter} (Streak: ${state.streak} days)`, "🌟");
+        try {
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (e) {}
+      } catch (err) {
+        console.error("Invalid URL sync payload", err);
       }
     }
   }
@@ -1509,6 +1676,30 @@
         });
       });
     }
+    if (elements.btnCloudPull) {
+      elements.btnCloudPull.addEventListener('click', () => pullFromCloud(false));
+    }
+    if (elements.btnCloudPush) {
+      elements.btnCloudPush.addEventListener('click', pushToCloud);
+    }
+    if (elements.btnSaveCloudToken) {
+      elements.btnSaveCloudToken.addEventListener('click', () => {
+        const token = elements.cloudGistToken ? elements.cloudGistToken.value.trim() : '';
+        if (token) {
+          localStorage.setItem('sai_gist_token', token);
+          showToast("Cloud push token saved! ✓", "✓");
+        } else {
+          localStorage.removeItem('sai_gist_token');
+          showToast("Token cleared", "ℹ️");
+        }
+      });
+    }
+    if (elements.btnCopySyncLink) {
+      elements.btnCopySyncLink.addEventListener('click', copySyncLink);
+    }
+    if (elements.btnWhatsappSync) {
+      elements.btnWhatsappSync.addEventListener('click', shareWhatsApp);
+    }
     if (elements.btnDoWifiSync) {
       elements.btnDoWifiSync.addEventListener('click', () => performWifiSync(false));
     }
@@ -1820,6 +2011,16 @@
     if (lastSync && elements.wifiLastSynced) {
       elements.wifiLastSynced.textContent = `Last synced: Today at ${lastSync}`;
     }
+    const lastCloudSync = localStorage.getItem('sai_last_cloud_sync');
+    if (lastCloudSync && elements.cloudLastSynced) {
+      elements.cloudLastSynced.textContent = `Last synced: Today at ${lastCloudSync}`;
+    }
+    if (elements.cloudGistToken) {
+      elements.cloudGistToken.value = localStorage.getItem('sai_gist_token') || '';
+    }
+
+    // Check if app was opened with a direct sync URL hash (#sync=...)
+    checkUrlSyncParam();
 
     // Hide Install button if running in native Capacitor APK or standalone PWA
     const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.Capacitor !== undefined || window.navigator.standalone;

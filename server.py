@@ -49,6 +49,17 @@ class DevotionalServerHandler(http.server.SimpleHTTPRequestHandler):
                 SYNC_FILE.parent.mkdir(parents=True, exist_ok=True)
                 with open(SYNC_FILE, 'w', encoding='utf-8') as f:
                     json.dump(data, f, indent=2)
+
+                # Auto-sync to GitHub Gist in background
+                try:
+                    import subprocess
+                    subprocess.Popen(
+                        ["gh", "gist", "edit", "96b05796b4e3181da4c7c94023006c41", str(SYNC_FILE)],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
+                except Exception:
+                    pass
                 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')
