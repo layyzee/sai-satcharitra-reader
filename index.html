@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icon.png">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=1.6.2">
 </head>
 <body class="font-size-md">
   <!-- Top Navigation Header -->
@@ -60,6 +60,10 @@
         <span class="sync-badge-indicator" id="header-sync-dot"></span>
       </button>
       <button id="btn-shortcuts-help" class="icon-ctrl-btn" title="Keyboard Shortcuts (?)">⌨️</button>
+      <button id="btn-journal-modal" class="icon-ctrl-btn header-journal-btn" title="My Spiritual Journal & Reflections (J)">
+        <span class="journal-icon-symbol">✍️</span>
+        <span class="header-count-badge" id="journal-count-badge">0</span>
+      </button>
       <button id="btn-settings-modal" class="icon-ctrl-btn" title="Appearance & Settings">⚙️</button>
     </div>
   </header>
@@ -137,6 +141,14 @@
 
               <button id="btn-toggle-notification" class="btn-notification-action" title="Toggle Daily Morning Wisdom Notification">
                 🔔 Enable Daily Morning Wisdom
+              </button>
+
+              <button id="btn-open-life-guide" class="btn-guide-action" title="Find Leelas by emotion, life need, or devotion theme">
+                🧭 Spiritual Life Guide
+              </button>
+
+              <button id="btn-open-journal" class="btn-journal-action" title="View private prayers and chapter notes written across the book">
+                ✍️ Spiritual Journal (<span id="daily-journal-count">0</span>)
               </button>
             </div>
           </div>
@@ -243,7 +255,25 @@
             </div>
             <span id="reflection-status-label" class="reflection-status">Auto-saved offline ✓</span>
           </div>
+          
+          <!-- Reflection Prompt Suggestion Chips -->
+          <div class="reflection-prompts-row">
+            <span class="prompt-hint">Inspire your note:</span>
+            <button class="btn-prompt-chip" data-prompt="What touched my heart: ">🕊️ What touched my heart</button>
+            <button class="btn-prompt-chip" data-prompt="My prayer to Baba: ">🙏 My prayer</button>
+            <button class="btn-prompt-chip" data-prompt="Lesson for my life: ">💡 Life lesson</button>
+          </div>
+
           <textarea id="chapter-reflection-input" class="reflection-textarea" placeholder="Write your thoughts, key realizations, or personal prayer for this chapter (automatically saved)..."></textarea>
+          
+          <div class="reflection-footer-actions">
+            <button id="btn-copy-reflection" class="btn-subtle-reflection" title="Copy this reflection to clipboard">
+              📋 Copy Note
+            </button>
+            <button id="btn-view-all-reflections" class="btn-subtle-reflection" title="View all reflections across all chapters in the Journal">
+              📖 Open Full Journal ➔
+            </button>
+          </div>
         </div>
 
         <!-- Chapter Bottom Navigation -->
@@ -286,6 +316,7 @@
       <!-- Chapter Filter Pills -->
       <div class="filter-pills-row">
         <button class="filter-pill active" data-filter="all">All Chapters (48)</button>
+        <button class="filter-pill" data-filter="guide">🧭 Spiritual Life Guide</button>
         <button class="filter-pill" data-filter="unread">Upcoming Today</button>
         <button class="filter-pill" data-filter="completed">Completed</button>
       </div>
@@ -294,13 +325,61 @@
       <div class="chapters-grid" id="chapters-grid-container">
         <!-- Chapter cards injected dynamically -->
       </div>
+
+      <!-- Spiritual Life Guide Thematic Grid (shown when guide filter selected) -->
+      <div class="spiritual-guide-container hidden" id="spiritual-guide-container">
+        <!-- Thematic life guidance cards injected dynamically -->
+      </div>
     </section>
 
     <!-- VIEW 4: 7-DAY SAPTAH PARAYAN SCHEDULE -->
     <section id="view-saptah" class="view-panel">
       <div class="saptah-header">
-        <h2 class="section-title">7-Day Saptah Parayan Plan</h2>
-        <p class="section-desc">Traditional Thursday-to-Wednesday reading cycle complete in 7 days.</p>
+        <div class="saptah-header-top">
+          <div>
+            <h2 class="section-title">7-Day Saptah Parayan Planner</h2>
+            <p class="section-desc">Traditional or custom 7-day holy reading vow with dynamic calendar dates.</p>
+          </div>
+          <button id="btn-toggle-saptah-planner" class="btn-saptah-planner-toggle" title="Customize start date and festival presets">
+            ⚙️ Plan Custom Saptah
+          </button>
+        </div>
+
+        <!-- Active Saptah Status Banner -->
+        <div class="saptah-status-banner" id="saptah-status-banner">
+          <div class="saptah-status-row">
+            <div class="saptah-status-info">
+              <span class="saptah-vow-badge" id="saptah-vow-badge">Active Saptah Vow</span>
+              <span class="saptah-dates-range" id="saptah-dates-range">Calculating dates...</span>
+            </div>
+            <span class="saptah-completion-ratio" id="saptah-completion-ratio">0 of 7 Days Done</span>
+          </div>
+          <div class="saptah-progress-track">
+            <div class="saptah-progress-bar-fill" id="saptah-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Custom Saptah Setup Drawer (Collapsible) -->
+        <div class="saptah-planner-drawer hidden" id="saptah-planner-drawer">
+          <h4 class="planner-drawer-title">Choose Start Date & Festival Presets</h4>
+          
+          <div class="saptah-presets-row">
+            <button class="btn-saptah-preset" data-preset="today">⚡ Start Today (7 Days)</button>
+            <button class="btn-saptah-preset" data-preset="thursday">🗓️ Next Thursday (Traditional)</button>
+            <button class="btn-saptah-preset" data-preset="ramnavami">🪔 Ram Navami Saptah</button>
+            <button class="btn-saptah-preset" data-preset="gurupurnima">🌕 Guru Purnima Saptah</button>
+            <button class="btn-saptah-preset" data-preset="dussehra">✨ Vijayadashami Saptah</button>
+          </div>
+
+          <div class="saptah-date-picker-row">
+            <div class="date-picker-field">
+              <label for="saptah-start-date-input" class="date-field-label">Or Pick Custom Start Date:</label>
+              <input type="date" id="saptah-start-date-input" class="saptah-date-input">
+            </div>
+            <button id="btn-apply-saptah-date" class="btn-apply-saptah">Apply Start Date</button>
+            <button id="btn-reset-saptah-date" class="btn-reset-saptah">Reset to Traditional</button>
+          </div>
+        </div>
       </div>
 
       <div class="saptah-days-container" id="saptah-days-list">
@@ -396,7 +475,44 @@
         <div class="shortcut-row"><kbd>+</kbd> / <kbd>-</kbd> <span>Increase / Decrease Font Size</span></div>
         <div class="shortcut-row"><kbd>B</kbd> <span>Ring Temple Bell</span></div>
         <div class="shortcut-row"><kbd>M</kbd> <span>Toggle Ambient Tanpura Meditation Drone</span></div>
+        <div class="shortcut-row"><kbd>J</kbd> <span>Open Spiritual Journal & Reflections</span></div>
         <div class="shortcut-row"><kbd>Esc</kbd> <span>Return to Dashboard / Close Popups</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Spiritual Journal & Reflections Modal -->
+  <div id="journal-modal" class="modal-overlay hidden">
+    <div class="modal-card journal-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="modal-icon">✍️</span>
+          <div>
+            <h3>My Spiritual Journal & Reflections</h3>
+            <p class="modal-subtitle">Private prayers, realizations & reflections written across chapters</p>
+          </div>
+        </div>
+        <button id="btn-close-journal-modal" class="btn-close-modal">✕</button>
+      </div>
+
+      <div class="journal-modal-body">
+        <!-- Journal Search & Actions Bar -->
+        <div class="journal-toolbar">
+          <input type="text" id="journal-search-input" class="search-input" placeholder="Search your reflections and prayers...">
+          <div class="journal-actions-row">
+            <button id="btn-copy-all-journal" class="btn-secondary-sync" title="Copy all written prayers and notes to clipboard">
+              📋 Copy All Notes
+            </button>
+            <button id="btn-export-journal" class="btn-secondary-sync" title="Download your spiritual journal as a clean text file">
+              💾 Export Diary (.txt)
+            </button>
+          </div>
+        </div>
+
+        <!-- Journal Entries List -->
+        <div class="journal-entries-container" id="journal-entries-list">
+          <!-- Dynamically populated -->
+        </div>
       </div>
     </div>
   </div>
@@ -643,7 +759,7 @@
   <!-- Load bundled local data -->
   <script src="data/bundle.js"></script>
   <!-- Main Application Logic -->
-  <script src="app.js"></script>
+  <script src="app.js?v=1.6.2"></script>
 
   <!-- PWA Offline Service Worker Registration & Tablet Install Handler -->
   <script>

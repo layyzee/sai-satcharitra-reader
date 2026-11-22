@@ -21,8 +21,77 @@
     bookmarks: {}, // { chapterId: scrollPercent }
     soundEnabled: true,
     favorites: [],
-    reflections: {}
+    reflections: {},
+    saptahStartDate: null // e.g. "2026-11-22"
   };
+
+  // 8 Curated Spiritual Guidance Themes (Find Leelas by Emotion & Need)
+  const SPIRITUAL_THEMES = [
+    {
+      id: 'faith_saburi',
+      icon: '🕊️',
+      title: 'Faith & Patience (Shraddha & Saburi)',
+      summary: 'Trusting Baba\'s divine timing, remaining steadfast through trials, and surrendering all anxious doubts.',
+      chapters: [6, 19, 45, 49],
+      keyQuote: '"Have faith and patience; whoever steps on Shirdi soil will have their afflictions ended."'
+    },
+    {
+      id: 'anxiety_peace',
+      icon: '🪔',
+      title: 'Calming Anxiety, Fear & Finding Peace',
+      summary: 'Overcoming mental worry, fear of the future, restlessness, and finding refuge under Baba\'s protection.',
+      chapters: [12, 13, 23],
+      keyQuote: '"Why fear when I am here? Cast all your burdens on Me and I will bear them."'
+    },
+    {
+      id: 'healing_udi',
+      icon: '🌿',
+      title: 'Health, Healing & The Sacred Udi',
+      summary: 'Divine relief from illness, bodily suffering, scorpion stings, fevers, and miraculous cures through Udi.',
+      chapters: [33, 34, 35],
+      keyQuote: '"Udi is the universal medicine. It bestows spiritual discernment and destroys all bodily pains."'
+    },
+    {
+      id: 'protection_danger',
+      icon: '🐍',
+      title: 'Protection from Dangers & Calamities',
+      summary: 'Miraculous rescues from deadly serpents, scorpions, stormy rains, thieves, and mortal crises.',
+      chapters: [21, 22, 30],
+      keyQuote: '"Even if the devotee is thousands of miles away, I will draw him to Me as a sparrow tied to a string."'
+    },
+    {
+      id: 'greed_ego',
+      icon: '⚖️',
+      title: 'Overcoming Greed, Ego & Pride',
+      summary: 'Detachment from excessive wealth, overcoming arrogance, cultivating humility and willing charity.',
+      chapters: [16, 17, 36, 47],
+      keyQuote: '"Unless a man unfastens the knots of avarice in his pocket, how can he attain Brahma-Jnana?"'
+    },
+    {
+      id: 'guru_bhakti',
+      icon: '🌺',
+      title: 'Surrender, Guru Grace & 9 Forms of Bhakti',
+      summary: 'Devotion to the Sadguru, Navavidha Bhakti, and total self-surrender (Prapatti).',
+      chapters: [18, 19, 32, 43],
+      keyQuote: '"Look to Me, and I will look to you. My tomb shall speak and move with those who make Me their refuge."'
+    },
+    {
+      id: 'compassion_beings',
+      icon: '🐾',
+      title: 'Compassion to Animals & All Beings',
+      summary: 'Seeing God in dogs, horses, birds, and the hungry stranger. The oneness of all living creation.',
+      chapters: [9, 20, 42],
+      keyQuote: '"He who feeds the hungry really feeds Me. Never kick or shun any creature, for I dwell within them all."'
+    },
+    {
+      id: 'self_realization',
+      icon: '💡',
+      title: 'Spiritual Wisdom & Self-Realization',
+      summary: 'The mystery of the inner Atman, Ishavasya Upanishad, the grinding of wheat, and liberation.',
+      chapters: [1, 20, 50],
+      keyQuote: '"Know thyself. The Guru will lead you across the ocean of worldly existence."'
+    }
+  ];
 
   // 7-Day Saptah Parayan Traditional Schedule
   const SAPTAH_SCHEDULE = [
@@ -73,6 +142,9 @@
     overallProgressFill: document.getElementById('overall-progress-fill'),
     btnResetParayan: document.getElementById('btn-reset-parayan'),
     btnBrandHome: document.getElementById('btn-brand-home'),
+    btnOpenLifeGuide: document.getElementById('btn-open-life-guide'),
+    btnOpenJournal: document.getElementById('btn-open-journal'),
+    dailyJournalCount: document.getElementById('daily-journal-count'),
 
     // Reader View
     btnBackToDaily: document.getElementById('btn-back-to-daily'),
@@ -92,14 +164,28 @@
     btnCompleteAndNext: document.getElementById('btn-complete-and-next'),
     chapterReflectionInput: document.getElementById('chapter-reflection-input'),
     reflectionStatusLabel: document.getElementById('reflection-status-label'),
+    btnCopyReflection: document.getElementById('btn-copy-reflection'),
+    btnViewAllReflections: document.getElementById('btn-view-all-reflections'),
+    promptChips: document.querySelectorAll('.btn-prompt-chip'),
 
     // Chapters Directory
     chapterSearchInput: document.getElementById('chapter-search-input'),
     filterPills: document.querySelectorAll('.filter-pills-row .filter-pill'),
     chaptersGridContainer: document.getElementById('chapters-grid-container'),
+    spiritualGuideContainer: document.getElementById('spiritual-guide-container'),
 
-    // Saptah View
+    // Saptah View & Custom Planner
     saptahDaysList: document.getElementById('saptah-days-list'),
+    btnToggleSaptahPlanner: document.getElementById('btn-toggle-saptah-planner'),
+    saptahStatusBanner: document.getElementById('saptah-status-banner'),
+    saptahDatesRange: document.getElementById('saptah-dates-range'),
+    saptahCompletionRatio: document.getElementById('saptah-completion-ratio'),
+    saptahProgressFill: document.getElementById('saptah-progress-fill'),
+    saptahPlannerDrawer: document.getElementById('saptah-planner-drawer'),
+    saptahPresetBtns: document.querySelectorAll('.btn-saptah-preset'),
+    saptahStartDateInput: document.getElementById('saptah-start-date-input'),
+    btnApplySaptahDate: document.getElementById('btn-apply-saptah-date'),
+    btnResetSaptahDate: document.getElementById('btn-reset-saptah-date'),
 
     // Aartis View
     aartiTabBtns: document.querySelectorAll('.aarti-tab-btn'),
@@ -170,7 +256,17 @@
     themeCardOptions: document.querySelectorAll('.theme-card-option'),
     fontScaleBtns: document.querySelectorAll('.font-scale-btn'),
     btnSettingsTanpura: document.getElementById('btn-settings-tanpura'),
-    btnSettingsBell: document.getElementById('btn-settings-bell')
+    btnSettingsBell: document.getElementById('btn-settings-bell'),
+
+    // Spiritual Journal Modal Elements
+    btnJournalModal: document.getElementById('btn-journal-modal'),
+    journalCountBadge: document.getElementById('journal-count-badge'),
+    journalModal: document.getElementById('journal-modal'),
+    btnCloseJournalModal: document.getElementById('btn-close-journal-modal'),
+    journalSearchInput: document.getElementById('journal-search-input'),
+    btnCopyAllJournal: document.getElementById('btn-copy-all-journal'),
+    btnExportJournal: document.getElementById('btn-export-journal'),
+    journalEntriesList: document.getElementById('journal-entries-list')
   };
 
   const fontSizes = ['font-size-sm', 'font-size-md', 'font-size-lg', 'font-size-xl'];
@@ -460,6 +556,7 @@
   function saveReflections() {
     try {
       localStorage.setItem(REFLECTIONS_KEY, JSON.stringify(state.reflections));
+      updateJournalBadges();
     } catch (e) {
       console.warn("Could not save reflections:", e);
     }
@@ -483,7 +580,8 @@
       fontSize: state.fontSize,
       bookmarks: state.bookmarks || {},
       favorites: state.favorites || [],
-      reflections: state.reflections || {}
+      reflections: state.reflections || {},
+      saptahStartDate: state.saptahStartDate || null
     };
   }
 
@@ -526,6 +624,7 @@
       favorites: Array.from(favSet),
       bookmarks: mergedBookmarks,
       reflections: mergedReflections,
+      saptahStartDate: preferRemote ? (remote.saptahStartDate || local.saptahStartDate) : (local.saptahStartDate || remote.saptahStartDate),
       streak: Math.max(local.streak || 1, remote.streak || 1),
       activeReadingChapter: preferRemote ? (remote.activeReadingChapter || local.activeReadingChapter) : local.activeReadingChapter,
       lastReadChapter: preferRemote ? (remote.lastReadChapter || local.lastReadChapter) : (local.lastReadChapter || remote.lastReadChapter),
@@ -1241,10 +1340,101 @@
   }
 
   // ==========================================================================
-  // View 3: All Chapters Directory
+  // View 3: All Chapters Directory & Spiritual Life Guide (Feature 2)
   // ==========================================================================
 
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function renderSpiritualThemes(query = '') {
+    const container = elements.spiritualGuideContainer;
+    if (!container) return;
+    container.innerHTML = '';
+
+    const cleanQuery = query.toLowerCase().trim();
+    const chaptersMap = {};
+    (window.SAI_CHAPTERS || []).forEach(c => { chaptersMap[c.id] = c; });
+
+    SPIRITUAL_THEMES.forEach(theme => {
+      if (cleanQuery) {
+        const matchesTitle = theme.title.toLowerCase().includes(cleanQuery);
+        const matchesSummary = theme.summary.toLowerCase().includes(cleanQuery);
+        const matchesQuote = theme.keyQuote.toLowerCase().includes(cleanQuery);
+        if (!matchesTitle && !matchesSummary && !matchesQuote) return;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'guide-theme-card';
+
+      let chapterChipsHtml = '';
+      theme.chapters.forEach(chapId => {
+        const chap = chaptersMap[chapId];
+        const isDone = state.completedChapters.includes(chapId);
+        const titleSnippet = chap ? chap.title.replace(/^Sai Satcharitra /i, '').substring(0, 36) + '...' : `Chapter ${chapId}`;
+        chapterChipsHtml += `
+          <button class="guide-chap-chip" data-chap="${chapId}" title="${chap ? chap.title : ''}">
+            ${isDone ? '✓ ' : ''}Ch ${chapId}: ${titleSnippet}
+          </button>
+        `;
+      });
+
+      card.innerHTML = `
+        <div>
+          <div class="guide-theme-header">
+            <span class="guide-theme-icon">${theme.icon}</span>
+            <div>
+              <h3 class="guide-theme-title">${theme.title}</h3>
+              <p class="guide-theme-summary">${theme.summary}</p>
+            </div>
+          </div>
+          <blockquote class="guide-theme-quote">${theme.keyQuote}</blockquote>
+          <div class="guide-chapters-section">
+            <span class="guide-chapters-label">Sacred Leelas to Read:</span>
+            <div class="guide-chapters-list">
+              ${chapterChipsHtml}
+            </div>
+          </div>
+        </div>
+      `;
+
+      card.querySelectorAll('.guide-chap-chip').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const cid = parseInt(btn.getAttribute('data-chap'), 10);
+          openChapter(cid);
+        });
+      });
+
+      container.appendChild(card);
+    });
+
+    if (container.children.length === 0) {
+      container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+        No spiritual life guidance themes match "${escapeHtml(query)}".
+      </div>`;
+    }
+  }
+
   function renderChaptersDirectory(query = '') {
+    if (currentDirectoryFilter === 'guide') {
+      if (elements.chaptersGridContainer) elements.chaptersGridContainer.classList.add('hidden');
+      if (elements.spiritualGuideContainer) {
+        elements.spiritualGuideContainer.classList.remove('hidden');
+        renderSpiritualThemes(query);
+      }
+      return;
+    }
+
+    if (elements.spiritualGuideContainer) elements.spiritualGuideContainer.classList.add('hidden');
+    if (elements.chaptersGridContainer) elements.chaptersGridContainer.classList.remove('hidden');
+
     const chapters = window.SAI_CHAPTERS || [];
     const container = elements.chaptersGridContainer;
     if (!container) return;
@@ -1313,17 +1503,57 @@
   }
 
   // ==========================================================================
-  // View 4: 7-Day Saptah Parayan Plan
+  // View 4: 7-Day Saptah Parayan Plan & Custom Festival Planner (Feature 5)
   // ==========================================================================
+
+  function getSaptahBaseDate() {
+    if (state.saptahStartDate) {
+      const parsed = new Date(state.saptahStartDate + 'T00:00:00');
+      if (!isNaN(parsed.getTime())) return parsed;
+    }
+    // Default: find current or most recent Thursday
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 is Sunday, 4 is Thursday
+    const diff = (dayOfWeek >= 4) ? (dayOfWeek - 4) : (dayOfWeek + 3);
+    const thurs = new Date(today);
+    thurs.setDate(today.getDate() - diff);
+    thurs.setHours(0, 0, 0, 0);
+    return thurs;
+  }
 
   function renderSaptahSchedule() {
     const container = elements.saptahDaysList;
     if (!container) return;
     container.innerHTML = '';
 
+    const baseDate = getSaptahBaseDate();
+    const endDate = new Date(baseDate);
+    endDate.setDate(baseDate.getDate() + 6);
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const todayStr = now.toISOString().split('T')[0];
+
+    // Update Active Saptah Status Banner
+    const startFmt = baseDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endFmt = endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (elements.saptahDatesRange) {
+      elements.saptahDatesRange.textContent = `${startFmt} – ${endFmt}`;
+    }
+
+    let totalDaysCompleted = 0;
+
     SAPTAH_SCHEDULE.forEach(plan => {
       const card = document.createElement('div');
       card.className = 'saptah-day-card';
+
+      // Calculate calendar date for this plan day
+      const dayDate = new Date(baseDate);
+      dayDate.setDate(baseDate.getDate() + (plan.day - 1));
+      const dayDateStr = dayDate.toISOString().split('T')[0];
+      const isDayToday = (dayDateStr === todayStr);
+
+      const dayDateLabel = dayDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
       // Check how many chapters for this day are completed
       let dayCompleted = 0;
@@ -1332,12 +1562,19 @@
         if (state.completedChapters.includes(ch)) dayCompleted++;
       }
       const isDayAllDone = dayCompleted === dayTotal;
+      if (isDayAllDone) totalDaysCompleted++;
+
+      if (isDayToday) {
+        card.classList.add('saptah-day-today');
+      }
+
+      const todayPill = isDayToday ? '<span class="saptah-today-target-pill">TODAY</span>' : '';
 
       card.innerHTML = `
         <div class="saptah-day-info">
           <div class="saptah-day-badge">Day ${plan.day}</div>
           <div>
-            <h4 class="saptah-day-title">${plan.name}</h4>
+            <h4 class="saptah-day-title">${dayDateLabel} ${todayPill}</h4>
             <p class="saptah-day-chapters">${plan.desc} — <em>${plan.title}</em></p>
           </div>
         </div>
@@ -1354,6 +1591,200 @@
 
       container.appendChild(card);
     });
+
+    // Update completion ratio & progress bar
+    if (elements.saptahCompletionRatio) {
+      elements.saptahCompletionRatio.textContent = `${totalDaysCompleted} of 7 Days Done (${Math.round((totalDaysCompleted / 7) * 100)}%)`;
+    }
+    if (elements.saptahProgressFill) {
+      elements.saptahProgressFill.style.width = `${(totalDaysCompleted / 7) * 100}%`;
+    }
+  }
+
+  // ==========================================================================
+  // Feature 3: Personal Spiritual Journal & Reflections Engine
+  // ==========================================================================
+
+  function updateJournalBadges() {
+    const notesCount = Object.keys(state.reflections || {}).filter(k => (state.reflections[k] && state.reflections[k].trim().length > 0)).length;
+    if (elements.journalCountBadge) {
+      elements.journalCountBadge.textContent = notesCount;
+      elements.journalCountBadge.classList.toggle('zero', notesCount === 0);
+    }
+    if (elements.dailyJournalCount) {
+      elements.dailyJournalCount.textContent = notesCount;
+    }
+  }
+
+  function openJournalModal() {
+    if (elements.journalModal) {
+      elements.journalModal.classList.remove('hidden');
+      if (elements.journalSearchInput) elements.journalSearchInput.value = '';
+      renderJournalModal('');
+      if (elements.journalSearchInput) elements.journalSearchInput.focus();
+    }
+  }
+
+  function closeJournalModal() {
+    if (elements.journalModal) {
+      elements.journalModal.classList.add('hidden');
+    }
+  }
+
+  function toggleJournalModal() {
+    if (elements.journalModal) {
+      if (elements.journalModal.classList.contains('hidden')) {
+        openJournalModal();
+      } else {
+        closeJournalModal();
+      }
+    }
+  }
+
+  function renderJournalModal(query = '') {
+    const container = elements.journalEntriesList;
+    if (!container) return;
+    container.innerHTML = '';
+
+    const reflections = state.reflections || {};
+    const chaptersMap = {};
+    (window.SAI_CHAPTERS || []).forEach(c => { chaptersMap[c.id] = c; });
+
+    const activeEntries = Object.keys(reflections)
+      .map(k => parseInt(k, 10))
+      .filter(cid => reflections[cid] && reflections[cid].trim().length > 0)
+      .sort((a, b) => a - b);
+
+    const cleanQuery = query.toLowerCase().trim();
+
+    const filtered = activeEntries.filter(cid => {
+      const text = reflections[cid].toLowerCase();
+      const chap = chaptersMap[cid];
+      const chapTitle = chap ? chap.title.toLowerCase() : '';
+      if (!cleanQuery) return true;
+      return text.includes(cleanQuery) || chapTitle.includes(cleanQuery) || `chapter ${cid}`.includes(cleanQuery);
+    });
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="journal-empty-box">
+          <div class="journal-empty-icon">✍️</div>
+          <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">No reflections written yet</h4>
+          <p class="journal-empty-text">
+            While reading any chapter, scroll to the bottom to write your private prayers, realizations, or life lessons. They will all be gathered here and auto-synced to the cloud.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(cid => {
+      const chap = chaptersMap[cid];
+      const text = reflections[cid];
+      const card = document.createElement('div');
+      card.className = 'journal-entry-card';
+      
+      const chapTitle = chap ? chap.title.replace(/^Sai Satcharitra /i, '') : `Chapter ${cid}`;
+
+      card.innerHTML = `
+        <div class="journal-entry-header">
+          <span class="journal-entry-chap">Chapter ${cid}: ${chapTitle}</span>
+          <span class="journal-entry-date">Recorded in your reader ✓</span>
+        </div>
+        <p class="journal-entry-text">${escapeHtml(text)}</p>
+        <div class="journal-entry-footer">
+          <button class="btn-journal-jump" data-chap="${cid}">
+            Read Chapter ${cid} ➔
+          </button>
+        </div>
+      `;
+
+      card.querySelector('.btn-journal-jump').addEventListener('click', () => {
+        closeJournalModal();
+        openChapter(cid);
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  function copyAllJournalNotes() {
+    const reflections = state.reflections || {};
+    const chaptersMap = {};
+    (window.SAI_CHAPTERS || []).forEach(c => { chaptersMap[c.id] = c; });
+
+    const activeEntries = Object.keys(reflections)
+      .map(k => parseInt(k, 10))
+      .filter(cid => reflections[cid] && reflections[cid].trim().length > 0)
+      .sort((a, b) => a - b);
+
+    if (activeEntries.length === 0) {
+      showToast("No reflections written yet to copy", "✍️");
+      return;
+    }
+
+    let textOut = `ॐ SRI SAI SATCHARITRA — MY SPIRITUAL JOURNAL & REFLECTIONS\n`;
+    textOut += `Saved on: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n`;
+    textOut += `Total Entries: ${activeEntries.length}\n`;
+    textOut += `------------------------------------------------------------\n\n`;
+
+    activeEntries.forEach(cid => {
+      const chap = chaptersMap[cid];
+      const title = chap ? chap.title.replace(/^Sai Satcharitra /i, '') : `Chapter ${cid}`;
+      textOut += `📖 CHAPTER ${cid}: ${title}\n`;
+      textOut += `${reflections[cid]}\n\n`;
+      textOut += `------------------------------------------------------------\n\n`;
+    });
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(textOut).then(() => {
+        showToast("All reflections copied to clipboard! 📋", "✓");
+      }).catch(() => {
+        prompt("Copy your reflections:", textOut);
+      });
+    } else {
+      prompt("Copy your reflections:", textOut);
+    }
+  }
+
+  function exportJournalToFile() {
+    const reflections = state.reflections || {};
+    const chaptersMap = {};
+    (window.SAI_CHAPTERS || []).forEach(c => { chaptersMap[c.id] = c; });
+
+    const activeEntries = Object.keys(reflections)
+      .map(k => parseInt(k, 10))
+      .filter(cid => reflections[cid] && reflections[cid].trim().length > 0)
+      .sort((a, b) => a - b);
+
+    if (activeEntries.length === 0) {
+      showToast("No reflections written yet to export", "✍️");
+      return;
+    }
+
+    let textOut = `ॐ SRI SAI SATCHARITRA — MY SPIRITUAL JOURNAL & REFLECTIONS\n`;
+    textOut += `Saved on: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}\n`;
+    textOut += `Total Entries: ${activeEntries.length}\n\n`;
+
+    activeEntries.forEach(cid => {
+      const chap = chaptersMap[cid];
+      const title = chap ? chap.title.replace(/^Sai Satcharitra /i, '') : `Chapter ${cid}`;
+      textOut += `============================================================\n`;
+      textOut += `CHAPTER ${cid}: ${title}\n`;
+      textOut += `============================================================\n`;
+      textOut += `${reflections[cid]}\n\n`;
+    });
+
+    const blob = new Blob([textOut], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Sai_Satcharitra_Spiritual_Journal_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Journal exported to file! 💾", "✓");
   }
 
   // ==========================================================================
@@ -1981,16 +2412,137 @@
         showToast("Om Sai Ram", "🔔");
       } else if (e.key.toLowerCase() === 'm') {
         toggleAmbientDrone();
+      } else if (e.key.toLowerCase() === 'j') {
+        toggleJournalModal();
       } else if (e.key === '?') {
         elements.shortcutsModal.classList.toggle('hidden');
       } else if (e.key === 'Escape') {
         if (elements.shortcutsModal) elements.shortcutsModal.classList.add('hidden');
         if (elements.syncModal) elements.syncModal.classList.add('hidden');
         if (elements.settingsModal) elements.settingsModal.classList.add('hidden');
+        if (elements.journalModal) elements.journalModal.classList.add('hidden');
         closeFindBar();
         switchView('daily');
       }
     });
+
+    // Feature 2: Spiritual Life Guide Navigation
+    if (elements.btnOpenLifeGuide) {
+      elements.btnOpenLifeGuide.addEventListener('click', () => {
+        switchView('chapters');
+        currentDirectoryFilter = 'guide';
+        elements.filterPills.forEach(p => p.classList.toggle('active', p.getAttribute('data-filter') === 'guide'));
+        renderChaptersDirectory('');
+      });
+    }
+
+    // Feature 3: Spiritual Journal Modal & Actions
+    if (elements.btnOpenJournal) {
+      elements.btnOpenJournal.addEventListener('click', openJournalModal);
+    }
+    if (elements.btnJournalModal) {
+      elements.btnJournalModal.addEventListener('click', openJournalModal);
+    }
+    if (elements.btnCloseJournalModal) {
+      elements.btnCloseJournalModal.addEventListener('click', closeJournalModal);
+    }
+    if (elements.journalModal) {
+      elements.journalModal.addEventListener('click', (e) => {
+        if (e.target === elements.journalModal) closeJournalModal();
+      });
+    }
+    if (elements.journalSearchInput) {
+      elements.journalSearchInput.addEventListener('input', (e) => {
+        renderJournalModal(e.target.value);
+      });
+    }
+    if (elements.btnCopyAllJournal) {
+      elements.btnCopyAllJournal.addEventListener('click', copyAllJournalNotes);
+    }
+    if (elements.btnExportJournal) {
+      elements.btnExportJournal.addEventListener('click', exportJournalToFile);
+    }
+    if (elements.btnCopyReflection) {
+      elements.btnCopyReflection.addEventListener('click', () => {
+        const text = elements.chapterReflectionInput ? elements.chapterReflectionInput.value.trim() : '';
+        if (!text) {
+          showToast("No reflection written for this chapter yet", "✍️");
+          return;
+        }
+        const cid = state.activeReadingChapter;
+        copyToClipboard(`ॐ Chapter ${cid} Reflection:\n${text}`, "Chapter reflection copied! 📋");
+      });
+    }
+    if (elements.btnViewAllReflections) {
+      elements.btnViewAllReflections.addEventListener('click', openJournalModal);
+    }
+    if (elements.promptChips) {
+      elements.promptChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const prompt = chip.getAttribute('data-prompt');
+          if (elements.chapterReflectionInput) {
+            const cur = elements.chapterReflectionInput.value.trim();
+            elements.chapterReflectionInput.value = cur ? `${cur}\n${prompt}` : prompt;
+            elements.chapterReflectionInput.focus();
+            elements.chapterReflectionInput.dispatchEvent(new Event('input'));
+          }
+        });
+      });
+    }
+
+    // Feature 5: Custom Saptah Planner Controls
+    if (elements.btnToggleSaptahPlanner) {
+      elements.btnToggleSaptahPlanner.addEventListener('click', () => {
+        if (elements.saptahPlannerDrawer) {
+          elements.saptahPlannerDrawer.classList.toggle('hidden');
+        }
+      });
+    }
+    if (elements.saptahPresetBtns) {
+      elements.saptahPresetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const preset = btn.getAttribute('data-preset');
+          const now = new Date();
+          const y = now.getFullYear();
+
+          if (preset === 'today') {
+            state.saptahStartDate = now.toISOString().split('T')[0];
+          } else if (preset === 'thursday') {
+            state.saptahStartDate = null;
+          } else if (preset === 'ramnavami') {
+            state.saptahStartDate = `${y}-04-10`;
+          } else if (preset === 'gurupurnima') {
+            state.saptahStartDate = `${y}-07-15`;
+          } else if (preset === 'dussehra') {
+            state.saptahStartDate = `${y}-10-14`;
+          }
+
+          saveState();
+          renderSaptahSchedule();
+          showToast("Saptah start date updated ✓", "🗓️");
+        });
+      });
+    }
+    if (elements.btnApplySaptahDate && elements.saptahStartDateInput) {
+      elements.btnApplySaptahDate.addEventListener('click', () => {
+        const val = elements.saptahStartDateInput.value;
+        if (val) {
+          state.saptahStartDate = val;
+          saveState();
+          renderSaptahSchedule();
+          showToast(`Saptah scheduled starting ${val} ✓`, "🗓️");
+        }
+      });
+    }
+    if (elements.btnResetSaptahDate) {
+      elements.btnResetSaptahDate.addEventListener('click', () => {
+        state.saptahStartDate = null;
+        if (elements.saptahStartDateInput) elements.saptahStartDateInput.value = '';
+        saveState();
+        renderSaptahSchedule();
+        showToast("Reset to traditional Thursday cycle ✓", "🗓️");
+      });
+    }
   }
 
   // ==========================================================================
@@ -2012,6 +2564,7 @@
     // Populate Views
     updateDashboardUI();
     updateBookmarkUI();
+    updateJournalBadges();
     setDynamicSaying();
     populateReaderDropdown();
     renderChaptersDirectory();

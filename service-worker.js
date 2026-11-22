@@ -1,5 +1,5 @@
 // Sri Sai Satcharitra - Offline Service Worker
-const CACHE_NAME = 'sai-satcharitra-v1.5.0';
+const CACHE_NAME = 'sai-satcharitra-v1.6.2';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -41,11 +41,31 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event - Cache-First Strategy with Network Fallback
+// Fetch Event - Network-First for Navigation & HTML, Cache-First for static assets
 self.addEventListener('fetch', event => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  const url = new URL(event.request.url);
+  const isHtmlNavigation = event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/');
+
+  if (isHtmlNavigation) {
+    // Network-First strategy for HTML: always load latest if online, fall back to cache when offline
+    event.respondWith(
+      fetch(event.request).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(event.request).then(cached => cached || caches.match('./index.html'));
+      })
+    );
+    return;
+  }
+
+  // Cache-First strategy for images, data, scripts, and stylesheets
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       if (cachedResponse) {
@@ -63,11 +83,6 @@ self.addEventListener('fetch', event => {
         });
 
         return networkResponse;
-      }).catch(() => {
-        // If offline and request is for navigation, return the cached index.html
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
       });
     })
   );

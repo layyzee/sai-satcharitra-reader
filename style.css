@@ -2437,6 +2437,538 @@ kbd {
   font-size: 12px;
 }
 
+/* Header Journal Count Badge */
+.header-journal-btn {
+  position: relative;
+}
+
+.header-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: var(--primary);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  min-width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-surface);
+}
+
+.header-count-badge.zero {
+  display: none;
+}
+
+/* Daily Dashboard Actions (Guide & Journal Buttons) */
+.btn-guide-action,
+.btn-journal-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-guide-action:hover,
+.btn-journal-action:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--bg-surface);
+}
+
+/* Reader Reflection Prompts & Actions */
+.reflection-prompts-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.prompt-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+.btn-prompt-chip {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-prompt-chip:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.reflection-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.btn-subtle-reflection {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color var(--transition-fast);
+}
+
+.btn-subtle-reflection:hover {
+  color: var(--primary);
+}
+
+/* ==========================================================================
+   FEATURE 2: SPIRITUAL LIFE-GUIDE (Find Leelas by Emotion/Need)
+   ========================================================================== */
+
+.spiritual-guide-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.guide-theme-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-fast);
+}
+
+.guide-theme-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-subtle);
+}
+
+.guide-theme-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.guide-theme-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.guide-theme-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.guide-theme-summary {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.guide-theme-quote {
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--primary);
+  background-color: var(--primary-light);
+  border-left: 3px solid var(--primary);
+  padding: 8px 12px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: 12px 0;
+  line-height: 1.45;
+}
+
+.guide-chapters-section {
+  margin-top: 10px;
+}
+
+.guide-chapters-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.guide-chapters-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.guide-chap-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.guide-chap-chip:hover {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+/* ==========================================================================
+   FEATURE 5: CUSTOM SAPTAH PARAYAN FESTIVAL PLANNER
+   ========================================================================== */
+
+.saptah-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-saptah-planner-toggle {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 15px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-saptah-planner-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.saptah-status-banner {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.saptah-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.saptah-status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saptah-vow-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.saptah-dates-range {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.saptah-completion-ratio {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.saptah-progress-track {
+  height: 6px;
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.saptah-progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.saptah-planner-drawer {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.planner-drawer-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.saptah-presets-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.btn-saptah-preset {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-saptah-preset:hover,
+.btn-saptah-preset.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.saptah-date-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-picker-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.saptah-date-input {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  font-size: 12.5px;
+}
+
+.btn-apply-saptah {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-reset-saptah {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.btn-reset-saptah:hover {
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+.saptah-day-card.saptah-day-today {
+  border-color: var(--primary);
+  background-color: var(--bg-surface);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.saptah-today-target-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  background-color: var(--accent-saffron, #f59e0b);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   FEATURE 3: SPIRITUAL JOURNAL MODAL & REFLECTIONS
+   ========================================================================== */
+
+.journal-modal-card {
+  max-width: 640px;
+  width: 92%;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.journal-toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal-actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.journal-entries-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.journal-entry-card {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  transition: border-color var(--transition-fast);
+}
+
+.journal-entry-card:hover {
+  border-color: var(--primary);
+}
+
+.journal-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.journal-entry-chap {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.journal-entry-date {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.journal-entry-text {
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text-main);
+  margin-bottom: 12px;
+}
+
+.journal-entry-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-journal-jump {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-journal-jump:hover {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+.journal-empty-box {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.journal-empty-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.journal-empty-text {
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 380px;
+  margin: 0 auto;
+}
+
 /* Tablet Optimizations (Landscape & Portrait 600px to 1280px) */
 @media (min-width: 601px) and (max-width: 1280px) {
   body {
