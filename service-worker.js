@@ -1,5 +1,5 @@
 // Sri Sai Satcharitra - Offline Service Worker
-const CACHE_NAME = 'sai-satcharitra-v1.7.0';
+const CACHE_NAME = 'sai-satcharitra-v1.7.1';
 
 const ASSETS_TO_CACHE = [
   './',

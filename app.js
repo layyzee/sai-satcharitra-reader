@@ -220,6 +220,9 @@
     dailyReadTime: document.getElementById('daily-read-time'),
     dailyChapTitle: document.getElementById('daily-chap-title'),
     dailyChapTopics: document.getElementById('daily-chap-topics'),
+    dailyChapEssenceBox: document.getElementById('daily-chap-essence-box'),
+    dailyChapQuote: document.getElementById('daily-chap-quote'),
+    dailyChapMeaning: document.getElementById('daily-chap-meaning'),
     btnReadToday: document.getElementById('btn-read-today'),
     btnMarkTodayComplete: document.getElementById('btn-mark-today-complete'),
     progressText: document.getElementById('progress-text'),
@@ -1241,6 +1244,30 @@
           tag.textContent = t;
           elements.dailyChapTopics.appendChild(tag);
         });
+      }
+
+      // Sacred Leela Essence & Teaching
+      if (elements.dailyChapEssenceBox && elements.dailyChapQuote) {
+        const numMatch = (dailyChap.short_title || '').match(/\d+/);
+        const chapNum = numMatch ? numMatch[0] : dailyChap.id;
+        const sayings = (window.SAI_DEVOTIONAL && window.SAI_DEVOTIONAL.sayings) || [];
+        const matched = sayings.find(s => s.context && (
+          s.context.includes(`Chapter ${chapNum}`) ||
+          s.context.includes(`Chapters ${chapNum}`)
+        ));
+
+        if (matched) {
+          elements.dailyChapQuote.textContent = `"${matched.quote}"`;
+          if (elements.dailyChapMeaning) {
+            elements.dailyChapMeaning.textContent = `${matched.meaning}`;
+          }
+        } else {
+          const topicSummary = dailyChap.topics && dailyChap.topics.length ? dailyChap.topics.slice(0, 2).join(' & ') : 'Devotion & Surrender';
+          elements.dailyChapQuote.textContent = `"Contemplate these sacred leelas with shraddha and saburi; reflecting on Baba's stories dissolves anxieties and bestows peace."`;
+          if (elements.dailyChapMeaning) {
+            elements.dailyChapMeaning.textContent = `Key focus: ${topicSummary}.`;
+          }
+        }
       }
 
       // Mark Today Complete Button State

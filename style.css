@@ -487,13 +487,14 @@ body {
 
 /* Quick Action Toolbar & Bookmark Resume */
 .hero-actions-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
   margin-top: 14px;
 }
 
 .resume-reading-box {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1978,13 +1979,84 @@ kbd {
   margin-bottom: 24px;
 }
 
-.daily-dashboard-grid .daily-hero-card,
-.daily-dashboard-grid .today-focus-card {
+.daily-dashboard-grid .daily-hero-card {
   margin-bottom: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.daily-dashboard-grid .today-focus-card {
+  margin-bottom: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.today-focus-card .chapter-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+}
+
+.today-focus-card .daily-action-row {
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+/* Sacred Leela Essence Box in Daily Reading Card */
+.daily-chap-essence-box {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-saffron);
+  border-radius: var(--radius-md);
+  padding: 13px 16px;
+  margin: 10px 0;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.essence-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+
+.essence-quote {
+  font-size: 13.5px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-main);
+  margin: 0 0 8px 0;
+}
+
+.essence-meaning-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.essence-bullet {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+@media (max-width: 680px) {
+  .hero-actions-toolbar {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {
