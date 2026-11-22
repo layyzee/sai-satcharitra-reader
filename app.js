@@ -550,6 +550,16 @@
     }
     serverBase = serverBase.replace(/\/+$/, '');
 
+    const capHttp = window.Capacitor?.Plugins?.CapacitorHttp;
+    // When running in a standard web browser on HTTPS, plain HTTP fetches are blocked as mixed content
+    if (!capHttp && window.location.protocol === 'https:' && serverBase.startsWith('http://') && !serverBase.includes('localhost') && !serverBase.includes('127.0.0.1')) {
+      if (!silent) {
+        showToast("Web browsers block local IP sync over HTTPS. Please use ☁️ Cloud Sync or 🔑 Sync Key.", "ℹ️");
+      }
+      updateSyncStatus("Use Cloud Sync on HTTPS web", "normal");
+      return;
+    }
+
     updateSyncStatus("Contacting Mac server...", "syncing");
     try {
       let remoteData = {};
@@ -697,14 +707,15 @@
           })
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      } else {
-        const serverBase = window.location.origin.includes(':8080') ? window.location.origin : 'http://127.0.0.1:8080';
-        const res = await fetch(`${serverBase}/api/sync`, {
+      } else if (window.location.protocol === 'http:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const res = await fetch(`http://127.0.0.1:8080/api/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error("Could not reach local server. Add an optional token for direct mobile upload.");
+        if (!res.ok) throw new Error("Could not reach local sync server on port 8080.");
+      } else {
+        throw new Error("To push to GitHub Cloud from web, enter your GitHub Token below (or tap '🔑 Sync Key' for 1-tap transfer).");
       }
 
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -1130,13 +1141,15 @@
     updateReaderCompletionButton(chapter.id);
     switchView('reader');
 
-    // Restore scroll bookmark if exists
+    // Restore scroll bookmark if exists (and not already completed/at the end)
     const savedScroll = state.bookmarks[chapter.id];
-    if (savedScroll && savedScroll > 0) {
+    if (savedScroll && savedScroll > 0 && savedScroll < 92) {
       setTimeout(() => {
         const targetScroll = (document.documentElement.scrollHeight - window.innerHeight) * (savedScroll / 100);
         window.scrollTo({ top: targetScroll, behavior: 'smooth' });
       }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
   }
 
@@ -2030,10 +2043,14 @@
       installBtn.classList.add('hidden');
     }
 
-    // Attempt silent Wi-Fi auto-sync on launch
+    // Attempt silent Wi-Fi auto-sync on launch only if on local network/Capacitor
     setTimeout(() => {
       if (elements.syncAutoLaunch && elements.syncAutoLaunch.checked) {
-        performWifiSync(true);
+        const isCapacitor = window.Capacitor !== undefined;
+        const isLocalHost = window.location.protocol === 'http:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isCapacitor || isLocalHost) {
+          performWifiSync(true);
+        }
       }
     }, 600);
 
