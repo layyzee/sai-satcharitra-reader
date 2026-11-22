@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icon.png">
 
-  <link rel="stylesheet" href="style.css?v=1.6.2">
+  <link rel="stylesheet" href="style.css?v=1.7.0">
 </head>
 <body class="font-size-md">
   <!-- Top Navigation Header -->
@@ -41,6 +41,9 @@
       </button>
       <button class="nav-tab-btn" data-view="saptah">
         <span class="tab-icon">🗓️</span> 7-Day Saptah
+      </button>
+      <button class="nav-tab-btn" data-view="darshan">
+        <span class="tab-icon">📷</span> Sacred Darshan
       </button>
       <button class="nav-tab-btn" data-view="aartis">
         <span class="tab-icon">🪔</span> Daily Aartis
@@ -149,6 +152,10 @@
 
               <button id="btn-open-journal" class="btn-journal-action" title="View private prayers and chapter notes written across the book">
                 ✍️ Spiritual Journal (<span id="daily-journal-count">0</span>)
+              </button>
+
+              <button id="btn-open-darshan" class="btn-darshan-action" title="View 8 rare, untouched historical photographs of Baba from 1890–1918">
+                📷 Sacred Darshan (Real Photos)
               </button>
             </div>
           </div>
@@ -459,6 +466,20 @@
       </div>
     </section>
 
+    <!-- VIEW 7: SACRED DARSHAN (Authentic Historical Photographs 1890–1918) -->
+    <section id="view-darshan" class="view-panel">
+      <div class="darshan-header">
+        <div class="darshan-title-group">
+          <h2 class="section-title">Sacred Darshan: Authentic Photographs (1890–1918)</h2>
+          <p class="section-desc">Rare, untouched historical photographs of Shirdi Sai Baba taken during His physical lifetime in Shirdi. Click any photograph for full-screen devotional contemplation and matching chapter leelas.</p>
+        </div>
+      </div>
+
+      <div class="darshan-grid" id="darshan-grid-container">
+        <!-- 8 authentic photograph cards injected dynamically -->
+      </div>
+    </section>
+
   </main>
 
   <!-- Keyboard Shortcuts Modal -->
@@ -512,6 +533,35 @@
         <!-- Journal Entries List -->
         <div class="journal-entries-container" id="journal-entries-list">
           <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sacred Darshan Devotional Lightbox Modal -->
+  <div id="darshan-lightbox-modal" class="modal-overlay hidden">
+    <div class="lightbox-container">
+      <button id="btn-close-lightbox" class="lightbox-close-btn" title="Close Lightbox (Esc)">✕</button>
+      <button id="btn-prev-darshan" class="lightbox-nav-btn prev" title="Previous Photograph (‹)">‹</button>
+      <button id="btn-next-darshan" class="lightbox-nav-btn next" title="Next Photograph (›)">›</button>
+
+      <div class="lightbox-content-box">
+        <div class="lightbox-image-wrapper">
+          <img id="lightbox-img" src="" alt="Shirdi Sai Baba Authentic Photograph" class="lightbox-main-img">
+        </div>
+        <div class="lightbox-details-drawer">
+          <div class="lightbox-meta-row">
+            <span class="lightbox-period-badge" id="lightbox-period">Circa 1910</span>
+            <span class="lightbox-location" id="lightbox-location">Dwarakamai, Shirdi</span>
+          </div>
+          <h3 class="lightbox-title" id="lightbox-title">Photo Title</h3>
+          <p class="lightbox-description" id="lightbox-desc">Historical details...</p>
+          <div class="lightbox-chapter-link">
+            <span class="lightbox-chapter-label">Mentioned in Sai Satcharitra:</span>
+            <button id="btn-lightbox-read-chapter" class="btn-primary-read" style="padding: 8px 18px; font-size: 13px;">
+              📖 Read Matching Chapter Leela ➔
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -746,6 +796,10 @@
       <span class="mobile-nav-icon">🗓️</span>
       <span class="mobile-nav-text">Saptah</span>
     </button>
+    <button class="mobile-nav-btn" data-view="darshan">
+      <span class="mobile-nav-icon">📷</span>
+      <span class="mobile-nav-text">Darshan</span>
+    </button>
     <button class="mobile-nav-btn" data-view="aartis">
       <span class="mobile-nav-icon">🪔</span>
       <span class="mobile-nav-text">Aartis</span>
@@ -759,7 +813,7 @@
   <!-- Load bundled local data -->
   <script src="data/bundle.js"></script>
   <!-- Main Application Logic -->
-  <script src="app.js?v=1.6.2"></script>
+  <script src="app.js?v=1.7.0"></script>
 
   <!-- PWA Offline Service Worker Registration & Tablet Install Handler -->
   <script>

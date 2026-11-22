@@ -104,6 +104,90 @@
     { day: 7, name: "Day 7 (Wednesday)",  startChap: 43, endChap: 48, title: "Maha-Samadhi, Reminiscences & Epilogue", desc: "Chapters 43 through 51" }
   ];
 
+  // 8 Authentic Historical Photographs of Shirdi Sai Baba (1890–1918)
+  const DARSHAN_PHOTOS = [
+    {
+      id: 'darshan-1',
+      file: 'assets/darshan/01_seated_stone.jpg',
+      title: 'The Divine Seated Posture (The Sacred Stone)',
+      period: 'Circa 1910',
+      location: 'Dwarakamai / Lendi Baug, Shirdi',
+      description: 'The world-famous, immortal posture of Baba seated on the sacred stone with His right foot placed over the left knee. Devotees would sit in silent reverence around Him in the mosque.',
+      chapterId: 4,
+      chapterTitle: 'Chapter 4 & 5: First Arrival & Abode in Dwarakamai'
+    },
+    {
+      id: 'darshan-2',
+      file: 'assets/darshan/02_satka_baton.jpg',
+      title: 'Baba with the Sacred Satka (Wooden Baton)',
+      period: 'Circa 1912',
+      location: 'Dwarakamai, Shirdi',
+      description: 'Authentic portrait of Baba holding His short wooden stick (Satka), which He always carried along with His tin tumbler (Tumrel). Baba used this Satka to tap the ground and dispel unseen obstacles.',
+      chapterId: 10,
+      chapterTitle: "Chapter 10: Baba's Mode of Life & His Sacred Satka"
+    },
+    {
+      id: 'darshan-3',
+      file: 'assets/darshan/03_seen_from_back.jpg',
+      title: 'Walking to Lendi Baug (Seen from Behind)',
+      period: 'Circa 1915',
+      location: 'Pilgrim Pathway to Lendi Baug',
+      description: 'An exceedingly rare and candid photograph captured by a devotee from behind, showing Baba in His simple white kafni walking quietly toward the Lendi Garden to tend the earthenware oil lamps (Nanda-deep).',
+      chapterId: 5,
+      chapterTitle: 'Chapter 5: Baba at the Lendi Garden & Tending the Deepams'
+    },
+    {
+      id: 'darshan-4',
+      file: 'assets/darshan/04_chavadi_procession.jpg',
+      title: 'The Magnificent Chavadi Procession',
+      period: 'Circa 1915',
+      location: 'Pathway between Dwarakamai and Chavadi',
+      description: 'Every alternate night, Baba was escorted from the mosque to the Chavadi in a grand royal procession with palanquins, torches (mashaals), singing bhajan mandalis, and devotees holding the ceremonial chhatra (umbrella).',
+      chapterId: 37,
+      chapterTitle: 'Chapter 37: The Ceremonial Chavadi Procession'
+    },
+    {
+      id: 'darshan-5',
+      file: 'assets/darshan/05_chavadi_crown.jpg',
+      title: 'Baba in Chavadi with Devotees\' Crown & Garlands',
+      period: 'Circa 1916',
+      location: 'Chavadi, Shirdi',
+      description: 'Baba seated in state inside the Chavadi adorned with floral garlands and a silver-plated crown placed upon His holy head by loving devotees during Thursday night aarti.',
+      chapterId: 37,
+      chapterTitle: 'Chapter 37: Night Aarti and Worship in the Chavadi'
+    },
+    {
+      id: 'darshan-6',
+      file: 'assets/darshan/06_with_buti_dixit.jpg',
+      title: 'With Shrimant Gopalrao Buti & Kakasaheb Dixit',
+      period: 'Circa 1916',
+      location: 'Dwarakamai, Shirdi',
+      description: 'Historical gathering in Dwarakamai. Beside Baba sits Shrimant Gopalrao Mukund Buti, the wealthy Nagpur devotee whom Baba instructed to build the stone Wada that would eventually become the Samadhi Mandir.',
+      chapterId: 43,
+      chapterTitle: 'Chapter 43: The Building of Buti Wada (Samadhi Mandir)'
+    },
+    {
+      id: 'darshan-7',
+      file: 'assets/darshan/07_face_prominent.jpg',
+      title: 'The Holy Countenance & Merciful Eyes',
+      period: 'Circa 1917',
+      location: 'Dwarakamai, Shirdi',
+      description: 'A close-up photographic study of Baba\'s radiant countenance, showing the authentic texture of His kafni, white headwrap, and His penetrating, compassionate gaze that promised: "Look to Me, and I will look to you."',
+      chapterId: 18,
+      chapterTitle: 'Chapter 18 & 19: The Glance of the Sadguru'
+    },
+    {
+      id: 'darshan-8',
+      file: 'assets/darshan/08_final_years_1918.jpg',
+      title: 'Final Physical Days at Shirdi (Maha-Samadhi Year)',
+      period: '1918',
+      location: 'Dwarakamai, Shirdi',
+      description: 'An authentic archival photograph taken in 1918, the year Baba attained Maha-Samadhi on Vijayadashami (October 15, 1918). Baba remained fully alert, bestowing blessings and charan-sparsh until His last breath.',
+      chapterId: 42,
+      chapterTitle: 'Chapter 42 & 43: Baba\'s Maha-Samadhi and Eternal Life'
+    }
+  ];
+
   // DOM Elements Cache
   const elements = {
     body: document.body,
@@ -144,6 +228,7 @@
     btnBrandHome: document.getElementById('btn-brand-home'),
     btnOpenLifeGuide: document.getElementById('btn-open-life-guide'),
     btnOpenJournal: document.getElementById('btn-open-journal'),
+    btnOpenDarshan: document.getElementById('btn-open-darshan'),
     dailyJournalCount: document.getElementById('daily-journal-count'),
 
     // Reader View
@@ -266,13 +351,27 @@
     journalSearchInput: document.getElementById('journal-search-input'),
     btnCopyAllJournal: document.getElementById('btn-copy-all-journal'),
     btnExportJournal: document.getElementById('btn-export-journal'),
-    journalEntriesList: document.getElementById('journal-entries-list')
+    journalEntriesList: document.getElementById('journal-entries-list'),
+
+    // Sacred Darshan Gallery & Lightbox Elements
+    darshanGridContainer: document.getElementById('darshan-grid-container'),
+    darshanLightboxModal: document.getElementById('darshan-lightbox-modal'),
+    btnCloseLightbox: document.getElementById('btn-close-lightbox'),
+    btnPrevDarshan: document.getElementById('btn-prev-darshan'),
+    btnNextDarshan: document.getElementById('btn-next-darshan'),
+    lightboxImg: document.getElementById('lightbox-img'),
+    lightboxPeriod: document.getElementById('lightbox-period'),
+    lightboxLocation: document.getElementById('lightbox-location'),
+    lightboxTitle: document.getElementById('lightbox-title'),
+    lightboxDesc: document.getElementById('lightbox-desc'),
+    btnLightboxReadChapter: document.getElementById('btn-lightbox-read-chapter')
   };
 
   const fontSizes = ['font-size-sm', 'font-size-md', 'font-size-lg', 'font-size-xl'];
   let currentDirectoryFilter = 'all';
   let currentSayingsCategory = 'all';
   let currentSayingsSearch = '';
+  let currentDarshanIndex = 0;
   let audioCtx = null;
 
   // ==========================================================================
@@ -1959,6 +2058,82 @@
   }
 
   // ==========================================================================
+  // View 7: Sacred Darshan (Rare Real Historical Photographs 1890–1918)
+  // ==========================================================================
+
+  function renderDarshanGallery() {
+    const container = elements.darshanGridContainer;
+    if (!container) return;
+    container.innerHTML = '';
+
+    DARSHAN_PHOTOS.forEach((photo, idx) => {
+      const card = document.createElement('div');
+      card.className = 'darshan-card';
+
+      card.innerHTML = `
+        <div class="darshan-img-wrap">
+          <img src="${photo.file}" alt="${escapeHtml(photo.title)}" class="darshan-thumb" loading="lazy">
+          <span class="darshan-period-tag">${photo.period}</span>
+        </div>
+        <div class="darshan-info">
+          <div>
+            <h3 class="darshan-card-title">${photo.title}</h3>
+            <span class="darshan-card-location">📍 ${photo.location}</span>
+            <p class="darshan-card-desc">${photo.description.substring(0, 105)}...</p>
+          </div>
+          <div class="darshan-card-action">
+            <span>📷 View Full Photograph</span>
+            <span>➔</span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        openDarshanLightbox(idx);
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  function openDarshanLightbox(idx) {
+    if (idx < 0 || idx >= DARSHAN_PHOTOS.length || !elements.darshanLightboxModal) return;
+    currentDarshanIndex = idx;
+    const photo = DARSHAN_PHOTOS[idx];
+
+    if (elements.lightboxImg) {
+      elements.lightboxImg.src = photo.file;
+      elements.lightboxImg.alt = photo.title;
+    }
+    if (elements.lightboxPeriod) elements.lightboxPeriod.textContent = photo.period;
+    if (elements.lightboxLocation) elements.lightboxLocation.textContent = `📍 ${photo.location}`;
+    if (elements.lightboxTitle) elements.lightboxTitle.textContent = photo.title;
+    if (elements.lightboxDesc) elements.lightboxDesc.textContent = photo.description;
+
+    if (elements.btnLightboxReadChapter) {
+      elements.btnLightboxReadChapter.textContent = `📖 Read ${photo.chapterTitle} ➔`;
+      elements.btnLightboxReadChapter.onclick = () => {
+        closeDarshanLightbox();
+        openChapter(photo.chapterId);
+      };
+    }
+
+    elements.darshanLightboxModal.classList.remove('hidden');
+  }
+
+  function closeDarshanLightbox() {
+    if (elements.darshanLightboxModal) {
+      elements.darshanLightboxModal.classList.add('hidden');
+    }
+  }
+
+  function navigateDarshanLightbox(direction) {
+    const total = DARSHAN_PHOTOS.length;
+    const nextIdx = (currentDarshanIndex + direction + total) % total;
+    openDarshanLightbox(nextIdx);
+  }
+
+  // ==========================================================================
   // Event Bindings
   // ==========================================================================
 
@@ -2421,8 +2596,15 @@
         if (elements.syncModal) elements.syncModal.classList.add('hidden');
         if (elements.settingsModal) elements.settingsModal.classList.add('hidden');
         if (elements.journalModal) elements.journalModal.classList.add('hidden');
+        if (elements.darshanLightboxModal) elements.darshanLightboxModal.classList.add('hidden');
         closeFindBar();
         switchView('daily');
+      }
+
+      // Sacred Darshan Lightbox arrow navigation
+      if (elements.darshanLightboxModal && !elements.darshanLightboxModal.classList.contains('hidden')) {
+        if (e.key === 'ArrowLeft') { navigateDarshanLightbox(-1); return; }
+        if (e.key === 'ArrowRight') { navigateDarshanLightbox(1); return; }
       }
     });
 
@@ -2543,6 +2725,25 @@
         showToast("Reset to traditional Thursday cycle ✓", "🗓️");
       });
     }
+
+    // Sacred Darshan Gallery & Lightbox Actions
+    if (elements.btnOpenDarshan) {
+      elements.btnOpenDarshan.addEventListener('click', () => switchView('darshan'));
+    }
+    if (elements.btnCloseLightbox) {
+      elements.btnCloseLightbox.addEventListener('click', closeDarshanLightbox);
+    }
+    if (elements.btnPrevDarshan) {
+      elements.btnPrevDarshan.addEventListener('click', () => navigateDarshanLightbox(-1));
+    }
+    if (elements.btnNextDarshan) {
+      elements.btnNextDarshan.addEventListener('click', () => navigateDarshanLightbox(1));
+    }
+    if (elements.darshanLightboxModal) {
+      elements.darshanLightboxModal.addEventListener('click', (e) => {
+        if (e.target === elements.darshanLightboxModal) closeDarshanLightbox();
+      });
+    }
   }
 
   // ==========================================================================
@@ -2569,6 +2770,7 @@
     populateReaderDropdown();
     renderChaptersDirectory();
     renderSaptahSchedule();
+    renderDarshanGallery();
     renderAarti('kakad');
     renderSayings('all', '');
 

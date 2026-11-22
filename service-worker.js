@@ -1,5 +1,5 @@
 // Sri Sai Satcharitra - Offline Service Worker
-const CACHE_NAME = 'sai-satcharitra-v1.6.2';
+const CACHE_NAME = 'sai-satcharitra-v1.7.0';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -12,7 +12,15 @@ const ASSETS_TO_CACHE = [
   './data/devotional.json',
   './assets/icon.png',
   './assets/icon-192.png',
-  './assets/saibaba.jpg'
+  './assets/saibaba.jpg',
+  './assets/darshan/01_seated_stone.jpg',
+  './assets/darshan/02_satka_baton.jpg',
+  './assets/darshan/03_seen_from_back.jpg',
+  './assets/darshan/04_chavadi_procession.jpg',
+  './assets/darshan/05_chavadi_crown.jpg',
+  './assets/darshan/06_with_buti_dixit.jpg',
+  './assets/darshan/07_face_prominent.jpg',
+  './assets/darshan/08_final_years_1918.jpg'
 ];
 
 // Install Event - Pre-cache all essential reading assets
