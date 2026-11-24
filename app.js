@@ -188,6 +188,25 @@
     }
   ];
 
+  // Helper to decode HTML entities (e.g. &#8217;, &nbsp;) and clean whitespace
+  function decodeHtml(str) {
+    if (!str) return '';
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value.replace(/\u00a0/g, ' ').trim();
+  }
+
+  // Pre-sanitize all chapter titles and topics in memory on startup
+  if (window.SAI_CHAPTERS && Array.isArray(window.SAI_CHAPTERS)) {
+    window.SAI_CHAPTERS.forEach(c => {
+      if (c.title) c.title = decodeHtml(c.title);
+      if (c.short_title) c.short_title = decodeHtml(c.short_title);
+      if (c.topics && Array.isArray(c.topics)) {
+        c.topics = c.topics.map(t => decodeHtml(t));
+      }
+    });
+  }
+
   // DOM Elements Cache
   const elements = {
     body: document.body,
@@ -1233,7 +1252,7 @@
     if (dailyChap) {
       elements.dailyChapBadge.textContent = dailyChap.short_title;
       elements.dailyReadTime.textContent = `~${dailyChap.reading_time_mins} min read`;
-      elements.dailyChapTitle.textContent = dailyChap.title.replace(/^Sai Satcharitra /i, '');
+      elements.dailyChapTitle.textContent = decodeHtml(dailyChap.title.replace(/^Sai Satcharitra /i, ''));
 
       // Topics
       elements.dailyChapTopics.innerHTML = '';
@@ -1241,7 +1260,7 @@
         dailyChap.topics.forEach(t => {
           const tag = document.createElement('span');
           tag.className = 'topic-tag';
-          tag.textContent = t;
+          tag.textContent = decodeHtml(t);
           elements.dailyChapTopics.appendChild(tag);
         });
       }
@@ -1328,9 +1347,9 @@
     updateBookmarkUI();
 
     // Set Meta
-    elements.readerMetaChap.textContent = chapter.short_title;
+    elements.readerMetaChap.textContent = decodeHtml(chapter.short_title);
     elements.readerMetaTime.textContent = `~${chapter.reading_time_mins} min read`;
-    elements.readerTitle.textContent = chapter.title.replace(/^Sai Satcharitra /i, '');
+    elements.readerTitle.textContent = decodeHtml(chapter.title.replace(/^Sai Satcharitra /i, ''));
 
     // Set Topics
     elements.readerTopicsBox.innerHTML = '';
@@ -1338,7 +1357,7 @@
       chapter.topics.forEach(t => {
         const tag = document.createElement('span');
         tag.className = 'topic-tag';
-        tag.textContent = t;
+        tag.textContent = decodeHtml(t);
         elements.readerTopicsBox.appendChild(tag);
       });
     }
@@ -1596,7 +1615,7 @@
         : '';
 
       const topicsSnippet = c.topics.length > 0 
-        ? c.topics.slice(0, 2).join(' • ') 
+        ? c.topics.slice(0, 2).map(t => decodeHtml(t)).join(' • ') 
         : 'Spiritual discourse and divine leelas of Shirdi Sai Baba.';
 
       card.innerHTML = `
