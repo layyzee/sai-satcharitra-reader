@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icon.png">
 
-  <link rel="stylesheet" href="style.css?v=1.8.0">
+  <link rel="stylesheet" href="style.css?v=1.8.1">
 </head>
 <body class="font-size-md">
   <!-- Top Navigation Header -->
@@ -32,37 +32,46 @@
     </div>
 
     <!-- Main Navigation Tabs (Desktop & Tablet Landscape) -->
-    <nav class="nav-tabs desktop-only">
+    <nav class="nav-tabs desktop-only" id="main-nav-tabs">
       <button class="nav-tab-btn active" data-view="daily">
-        <span class="tab-icon">📖</span> Today's Read
+        <span class="tab-icon">📖</span> <span class="tab-label">Today</span>
       </button>
       <button class="nav-tab-btn" data-view="chapters">
-        <span class="tab-icon">📑</span> All Chapters
+        <span class="tab-icon">📑</span> <span class="tab-label">Chapters</span>
       </button>
       <button class="nav-tab-btn" data-view="saptah">
-        <span class="tab-icon">🗓️</span> 7-Day Saptah
+        <span class="tab-icon">🗓️</span> <span class="tab-label">Saptah</span>
       </button>
       <button class="nav-tab-btn" data-view="darshan">
-        <span class="tab-icon">📷</span> Sacred Darshan
+        <span class="tab-icon">📷</span> <span class="tab-label">Darshan</span>
       </button>
       <button class="nav-tab-btn" data-view="aartis">
-        <span class="tab-icon">🪔</span> Daily Aartis
+        <span class="tab-icon">🪔</span> <span class="tab-label">Aartis</span>
       </button>
       <button class="nav-tab-btn" data-view="sayings">
-        <span class="tab-icon">✨</span> Divine Sayings (52)
+        <span class="tab-icon">✨</span> <span class="tab-label">Sayings</span>
       </button>
     </nav>
 
-    <!-- Reading Controls (Drone, Bell, Sync & Settings) -->
+    <!-- Reading Controls (Audio, Bell, Sync, Shortcuts, Journal & Settings) -->
     <div class="header-right">
-      <button id="btn-pwa-install" class="icon-ctrl-btn pwa-install-btn hidden" title="Install App on Device">📲 Install</button>
-      <button id="btn-ambient-tanpura" class="icon-ctrl-btn" title="Ambient Tanpura Meditation Drone (M)">🪕</button>
-      <button id="btn-temple-bell" class="icon-ctrl-btn" title="Ring Temple Bell (B)">🔔</button>
+      <button id="btn-pwa-install" class="pwa-install-btn hidden" title="Install App on Device">
+        <span class="pwa-install-icon">📲</span>
+        <span class="pwa-install-text">Install</span>
+      </button>
+
+      <!-- Devotional Audio Pill (Tanpura + Temple Bell) -->
+      <div class="header-pill-group audio-tools-pill" title="Devotional Sounds">
+        <button id="btn-ambient-tanpura" class="grouped-icon-btn" title="Ambient Tanpura Meditation Drone (M)">🪕</button>
+        <span class="pill-divider" aria-hidden="true"></span>
+        <button id="btn-temple-bell" class="grouped-icon-btn" title="Ring Temple Bell (B)">🔔</button>
+      </div>
+
       <button id="btn-sync-modal" class="icon-ctrl-btn sync-btn-highlight" title="Cross-Device Story & Save Sync">
         <span class="sync-icon-symbol">🔄</span>
         <span class="sync-badge-indicator" id="header-sync-dot"></span>
       </button>
-      <button id="btn-shortcuts-help" class="icon-ctrl-btn" title="Keyboard Shortcuts (?)">⌨️</button>
+      <button id="btn-shortcuts-help" class="icon-ctrl-btn shortcuts-desktop-only" title="Keyboard Shortcuts (?)">⌨️</button>
       <button id="btn-journal-modal" class="icon-ctrl-btn header-journal-btn" title="My Spiritual Journal & Reflections (J)">
         <span class="journal-icon-symbol">✍️</span>
         <span class="header-count-badge" id="journal-count-badge">0</span>
@@ -888,7 +897,7 @@
   <!-- Load bundled local data -->
   <script src="data/bundle.js"></script>
   <!-- Main Application Logic -->
-  <script src="app.js?v=1.8.0"></script>
+  <script src="app.js?v=1.8.1"></script>
 
   <!-- PWA Offline Service Worker Registration & Tablet Install Handler -->
   <script>

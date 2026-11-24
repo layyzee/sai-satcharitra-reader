@@ -1,6 +1,6 @@
 {
   "name": "sai-satcharitra-reader",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "100% Offline Daily Devotional Reader for Sri Sai Satcharitra",
   "scripts": {
     "start": "npx serve ."
