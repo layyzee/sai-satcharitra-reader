@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="assets/icon.png">
 
-  <link rel="stylesheet" href="style.css?v=1.7.2">
+  <link rel="stylesheet" href="style.css?v=1.8.0">
 </head>
 <body class="font-size-md">
   <!-- Top Navigation Header -->
@@ -89,7 +89,7 @@
     <section id="view-daily" class="view-panel active">
       <div class="daily-dashboard-grid">
         <!-- Column 1: Daily Hero Card with Baba's Portrait & Wisdom -->
-        <div class="daily-hero-card">
+        <div class="daily-hero-card spotlight-card">
           <div class="hero-image-wrapper">
             <img src="assets/saibaba.jpg" alt="Shirdi Sai Baba" class="hero-portrait">
           </div>
@@ -105,9 +105,14 @@
               <p class="hero-tagline" id="daily-dynamic-saying">
                 "Whoever puts their feet on Shirdi soil, their sufferings will come to an end."
               </p>
-              <button id="btn-refresh-saying" class="btn-refresh-blessing" title="Draw another divine blessing">
-                ✨ Draw New Blessing
-              </button>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <button id="btn-refresh-saying" class="btn-refresh-blessing" title="Draw another divine blessing">
+                  ✨ Draw New Blessing
+                </button>
+                <button id="btn-create-blessing-card" class="btn-keepsake-trigger" title="Create a Hallmark-style Keepsake card with this divine blessing">
+                  🪔 Hallmark Keepsake Card
+                </button>
+              </div>
             </div>
 
             <div class="streak-banner">
@@ -162,7 +167,7 @@
         </div>
 
         <!-- Column 2: Today's Assigned Chapter Focus Card -->
-        <div class="today-focus-card">
+        <div class="today-focus-card spotlight-card">
           <div class="card-eyebrow">
             <span class="pulsing-dot"></span>
             <span>TODAY'S DAILY READING</span>
@@ -208,7 +213,7 @@
       </div>
 
       <!-- Quick Parayan Progress Tracker (Full Width Span) -->
-      <div class="parayan-progress-card">
+      <div class="parayan-progress-card spotlight-card">
         <div class="progress-card-header">
           <div>
             <h3 class="progress-title">Nitya Parayan Progress</h3>
@@ -255,6 +260,11 @@
 
       <!-- Reader Scroll Container -->
       <article class="reader-article-container">
+        <!-- Apple-Grade Silk Bookmark Ribbon -->
+        <div id="reader-silk-ribbon" class="reader-silk-ribbon" title="Click to bookmark this sacred chapter with holy silk ribbon">
+          <span class="ribbon-star">★</span>
+        </div>
+
         <header class="reader-header">
           <div class="reader-meta">
             <span class="reader-chap-tag" id="reader-meta-chap">Chapter 1</span>
@@ -302,6 +312,11 @@
 
         <!-- Chapter Bottom Navigation -->
         <footer class="reader-footer">
+          <div style="display:flex; justify-content:center; margin-bottom: 24px;">
+            <button id="btn-chapter-keepsake" class="btn-keepsake-trigger" title="Create a Hallmark-style Keepsake card for this chapter">
+              🪔 Create Chapter Keepsake Card
+            </button>
+          </div>
           <div class="sacred-divider">Om Sai Ram</div>
           <div class="reader-footer-nav">
             <button id="btn-prev-chapter" class="nav-arrow-btn">
@@ -733,22 +748,29 @@
             <button class="theme-card-option" data-theme="sepia">
               <span class="theme-swatch sepia-swatch"></span>
               <div class="theme-info">
-                <strong>Warm Sepia</strong>
-                <span>Holy Book Parchment</span>
+                <strong>Holy Parchment</strong>
+                <span>Warm Sacred Ivory</span>
               </div>
             </button>
-            <button class="theme-card-option" data-theme="light">
-              <span class="theme-swatch light-swatch"></span>
+            <button class="theme-card-option" data-theme="dusk">
+              <span class="theme-swatch" style="background:#231d17; border: 1px solid #4a3e32;"></span>
               <div class="theme-info">
-                <strong>Day Light</strong>
-                <span>Crisp Modern View</span>
+                <strong>Dusk Sepia</strong>
+                <span>Dwarakamai Candlelight</span>
               </div>
             </button>
             <button class="theme-card-option" data-theme="dark">
               <span class="theme-swatch dark-swatch"></span>
               <div class="theme-info">
-                <strong>Night Dark</strong>
-                <span>Gentle On Eyes</span>
+                <strong>Midnight Shirdi</strong>
+                <span>Deep OLED Night</span>
+              </div>
+            </button>
+            <button class="theme-card-option" data-theme="light">
+              <span class="theme-swatch light-swatch"></span>
+              <div class="theme-info">
+                <strong>Modern Slate</strong>
+                <span>Crisp Day View</span>
               </div>
             </button>
           </div>
@@ -799,6 +821,42 @@
     </div>
   </div>
 
+  <!-- Hallmark Devotional Keepsake Card Modal -->
+  <div id="keepsake-modal" class="modal-overlay hidden">
+    <div class="modal-card keepsake-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-title">
+          <span class="modal-icon">🪔</span>
+          <div>
+            <h3>Sacred Devotional Keepsake Card</h3>
+            <p class="modal-subtitle">Hallmark-grade divine blessing card for contemplation & sharing</p>
+          </div>
+        </div>
+        <button id="btn-close-keepsake" class="btn-close-modal">✕</button>
+      </div>
+
+      <div class="keepsake-modal-body">
+        <div class="keepsake-canvas-wrapper">
+          <canvas id="keepsake-canvas" width="800" height="1000"></canvas>
+        </div>
+
+        <div class="keepsake-card-actions">
+          <button id="btn-download-keepsake" class="btn-primary-card">
+            📥 Save Devotional Card (.png)
+          </button>
+          <div class="btn-secondary-card-row">
+            <button id="btn-copy-keepsake" class="btn-secondary-card">
+              📋 Copy to Clipboard
+            </button>
+            <button id="btn-share-keepsake" class="btn-secondary-card">
+              📤 Share with Family
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile & Tablet Bottom Navigation Bar -->
   <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
     <button class="mobile-nav-btn active" data-view="daily">
@@ -830,7 +888,7 @@
   <!-- Load bundled local data -->
   <script src="data/bundle.js"></script>
   <!-- Main Application Logic -->
-  <script src="app.js?v=1.7.2"></script>
+  <script src="app.js?v=1.8.0"></script>
 
   <!-- PWA Offline Service Worker Registration & Tablet Install Handler -->
   <script>

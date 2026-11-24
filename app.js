@@ -252,9 +252,12 @@
     btnOpenJournal: document.getElementById('btn-open-journal'),
     btnOpenDarshan: document.getElementById('btn-open-darshan'),
     dailyJournalCount: document.getElementById('daily-journal-count'),
+    btnCreateBlessingCard: document.getElementById('btn-create-blessing-card'),
 
     // Reader View
     btnBackToDaily: document.getElementById('btn-back-to-daily'),
+    readerSilkRibbon: document.getElementById('reader-silk-ribbon'),
+    btnChapterKeepsake: document.getElementById('btn-chapter-keepsake'),
     readerChapterDropdown: document.getElementById('reader-chapter-dropdown'),
     btnToggleFind: document.getElementById('btn-toggle-find'),
     readerFindBar: document.getElementById('reader-find-bar'),
@@ -364,6 +367,14 @@
     fontScaleBtns: document.querySelectorAll('.font-scale-btn'),
     btnSettingsTanpura: document.getElementById('btn-settings-tanpura'),
     btnSettingsBell: document.getElementById('btn-settings-bell'),
+
+    // Hallmark Keepsake Card Elements
+    keepsakeModal: document.getElementById('keepsake-modal'),
+    keepsakeCanvas: document.getElementById('keepsake-canvas'),
+    btnCloseKeepsake: document.getElementById('btn-close-keepsake'),
+    btnDownloadKeepsake: document.getElementById('btn-download-keepsake'),
+    btnCopyKeepsake: document.getElementById('btn-copy-keepsake'),
+    btnShareKeepsake: document.getElementById('btn-share-keepsake'),
 
     // Spiritual Journal Modal Elements
     btnJournalModal: document.getElementById('btn-journal-modal'),
@@ -536,6 +547,166 @@
       }
     } catch (err) {
       console.warn("Could not start ambient drone:", err);
+    }
+  }
+
+  // ==========================================================================
+  // Hallmark Devotional Keepsake Card Generator (Canvas Engine)
+  // ==========================================================================
+
+  let currentKeepsakeData = null;
+
+  function updateRibbonState(chapterId) {
+    if (!elements.readerSilkRibbon) return;
+    const isBookmarked = state.lastReadChapter === chapterId;
+    elements.readerSilkRibbon.classList.toggle('bookmarked', isBookmarked);
+  }
+
+  function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      const testWidth = metrics.width;
+      if (testWidth > maxWidth && n > 0) {
+        ctx.fillText(line.trim(), x, y);
+        line = words[n] + ' ';
+        y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line.trim(), x, y);
+    return y + lineHeight;
+  }
+
+  function drawKeepsakeCard({ title, quote, context, dateStr }) {
+    const canvas = elements.keepsakeCanvas;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;  // 800
+    const h = canvas.height; // 1000
+
+    // 1. Holy Parchment Canvas Background with Soft Radiant Shading
+    const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 80, w / 2, h / 2, 540);
+    bgGrad.addColorStop(0, '#fdfbf7');
+    bgGrad.addColorStop(0.5, '#f7efe1');
+    bgGrad.addColorStop(1, '#ebdcc5');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Ornate Double Gold Hallmark Filigree Border
+    ctx.save();
+    ctx.strokeStyle = '#c58a2e';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(32, 32, w - 64, h - 64);
+
+    ctx.strokeStyle = '#e2b868';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(44, 44, w - 88, h - 88);
+
+    // Corner Ornaments
+    const corners = [
+      [44, 44],
+      [w - 44, 44],
+      [44, h - 44],
+      [w - 44, h - 44]
+    ];
+    corners.forEach(([cx, cy]) => {
+      ctx.fillStyle = '#b45309';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#c58a2e';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+      ctx.stroke();
+    });
+    ctx.restore();
+
+    // 3. Top Sacred Crest: OM SAI RAM
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 22px Georgia, serif';
+    ctx.fillText('॥ ॐ श्री साईं नाथाय नमः ॥', w / 2, 95);
+
+    ctx.fillStyle = '#7c634b';
+    ctx.font = '600 12px -apple-system, sans-serif';
+    ctx.fillText('SRI SAI SATCHARITRA • SACRED DEVOTION', w / 2, 122);
+
+    // 4. Central Emblem: Diya
+    ctx.font = '36px serif';
+    ctx.fillText('🪔', w / 2, 175);
+
+    // 5. Divider Line with Diamond
+    ctx.strokeStyle = '#c58a2e';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(w / 2 - 120, 205);
+    ctx.lineTo(w / 2 + 120, 205);
+    ctx.stroke();
+    ctx.fillStyle = '#b45309';
+    ctx.font = '14px serif';
+    ctx.fillText('✦', w / 2, 210);
+
+    // 6. Large Elegant Golden Quotation Mark
+    ctx.fillStyle = '#e2b868';
+    ctx.font = 'italic 76px Georgia, serif';
+    ctx.fillText('“', w / 2, 280);
+
+    // 7. Divine Quote (Dynamic wrapping)
+    ctx.fillStyle = '#261b11';
+    ctx.font = 'italic 27px Georgia, serif';
+    const cleanQuote = (quote || '').replace(/^"|"$/g, '');
+    const quoteY = wrapCanvasText(ctx, `"${cleanQuote}"`, w / 2, 335, 620, 44);
+
+    // 8. Chapter Context / Source Pill
+    const contextY = Math.max(quoteY + 25, 590);
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 16px -apple-system, sans-serif';
+    ctx.fillText(context || 'Spiritual Wisdom of Shirdi Sai Baba', w / 2, contextY);
+
+    if (title && title !== context) {
+      ctx.fillStyle = '#6e563d';
+      ctx.font = 'italic 15px Georgia, serif';
+      ctx.fillText(title, w / 2, contextY + 28);
+    }
+
+    // 9. Lower Divider
+    const lowerDividerY = Math.max(contextY + 70, 730);
+    ctx.strokeStyle = '#c58a2e';
+    ctx.beginPath();
+    ctx.moveTo(w / 2 - 140, lowerDividerY);
+    ctx.lineTo(w / 2 + 140, lowerDividerY);
+    ctx.stroke();
+    ctx.fillText('❧ 🪔 ❧', w / 2, lowerDividerY - 4);
+
+    // 10. Hallmark Devotional Blessing Seal & Date
+    ctx.fillStyle = '#8c735a';
+    ctx.font = '13.5px -apple-system, sans-serif';
+    ctx.fillText(dateStr || new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }), w / 2, lowerDividerY + 45);
+
+    ctx.fillStyle = '#2b2118';
+    ctx.font = 'bold 15px Georgia, serif';
+    ctx.fillText('Shraddha & Saburi (Faith & Patience)', w / 2, lowerDividerY + 75);
+
+    ctx.fillStyle = '#8c735a';
+    ctx.font = 'italic 13px Georgia, serif';
+    ctx.fillText('May Bhagavan Shri Sai Baba bless you with peace, health, and contentment.', w / 2, lowerDividerY + 102);
+
+    ctx.fillStyle = '#c58a2e';
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.fillText('SHIRDI SANSTHAN • DAILY PARAYAN KEEPSAKE', w / 2, h - 55);
+  }
+
+  function openKeepsakeModal({ title, quote, context }) {
+    const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    currentKeepsakeData = { title, quote, context, dateStr: today };
+    drawKeepsakeCard(currentKeepsakeData);
+    if (elements.keepsakeModal) {
+      elements.keepsakeModal.classList.remove('hidden');
     }
   }
 
@@ -1180,7 +1351,7 @@
   }
 
   function cycleTheme() {
-    const themes = ['sepia', 'light', 'dark'];
+    const themes = ['sepia', 'dusk', 'dark', 'light'];
     const nextIdx = (themes.indexOf(state.theme) + 1) % themes.length;
     applyTheme(themes[nextIdx]);
     showToast(`Switched to ${themes[nextIdx].toUpperCase()} Theme`, '🎨');
@@ -1345,6 +1516,7 @@
     state.lastReadChapter = chapterId;
     saveState();
     updateBookmarkUI();
+    updateRibbonState(chapterId);
 
     // Set Meta
     elements.readerMetaChap.textContent = decodeHtml(chapter.short_title);
@@ -2790,6 +2962,120 @@
         if (e.target === elements.darshanLightboxModal) closeDarshanLightbox();
       });
     }
+
+    // Silk Bookmark Ribbon Interaction (Apple-Grade Tactile Feedback)
+    if (elements.readerSilkRibbon) {
+      elements.readerSilkRibbon.addEventListener('click', () => {
+        const curId = state.activeReadingChapter || 1;
+        state.lastReadChapter = curId;
+        saveState();
+        updateRibbonState(curId);
+        updateBookmarkUI();
+        playTempleBell();
+        showToast(`Chapter ${curId} Bookmarked with Sacred Ribbon! ★`, "★");
+      });
+    }
+
+    // Hallmark Keepsake Triggers
+    if (elements.btnCreateBlessingCard) {
+      elements.btnCreateBlessingCard.addEventListener('click', () => {
+        const quoteText = elements.dailyDynamicSaying ? elements.dailyDynamicSaying.textContent.replace(/^"|"$/g, '').trim() : '';
+        openKeepsakeModal({
+          title: 'Daily Divine Blessing',
+          quote: quoteText || "Whoever puts their feet on Shirdi soil, their sufferings will come to an end.",
+          context: 'Shirdi Sai Baba Holy Assurance'
+        });
+      });
+    }
+
+    if (elements.btnChapterKeepsake) {
+      elements.btnChapterKeepsake.addEventListener('click', () => {
+        const chapters = window.SAI_CHAPTERS || [];
+        const chap = chapters.find(c => c.id === state.activeReadingChapter) || chapters[0];
+        const quoteText = elements.dailyChapQuote ? elements.dailyChapQuote.textContent.replace(/^"|"$/g, '').trim() : '';
+        openKeepsakeModal({
+          title: chap.title.replace(/^Sai Satcharitra /i, ''),
+          quote: quoteText || "Surrender your ego and pride at the feet of the Sadguru; only pure love and wisdom remain.",
+          context: `Chapter ${chap.id}: ${chap.short_title}`
+        });
+      });
+    }
+
+    // Hallmark Keepsake Modal Actions
+    if (elements.btnCloseKeepsake && elements.keepsakeModal) {
+      elements.btnCloseKeepsake.addEventListener('click', () => {
+        elements.keepsakeModal.classList.add('hidden');
+      });
+    }
+    if (elements.keepsakeModal) {
+      elements.keepsakeModal.addEventListener('click', (e) => {
+        if (e.target === elements.keepsakeModal) elements.keepsakeModal.classList.add('hidden');
+      });
+    }
+    if (elements.btnDownloadKeepsake && elements.keepsakeCanvas) {
+      elements.btnDownloadKeepsake.addEventListener('click', () => {
+        const dataUrl = elements.keepsakeCanvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.download = `Sai_Baba_Keepsake_${new Date().toISOString().slice(0, 10)}.png`;
+        a.href = dataUrl;
+        a.click();
+        showToast("Sacred Keepsake Saved! 📥", "🪔");
+      });
+    }
+    if (elements.btnCopyKeepsake && elements.keepsakeCanvas) {
+      elements.btnCopyKeepsake.addEventListener('click', () => {
+        elements.keepsakeCanvas.toBlob(async (blob) => {
+          if (!blob) return;
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            showToast("Keepsake Copied to Clipboard! 📋", "🪔");
+          } catch (err) {
+            console.warn("Clipboard copy image failed:", err);
+            elements.btnDownloadKeepsake.click();
+          }
+        });
+      });
+    }
+    if (elements.btnShareKeepsake && elements.keepsakeCanvas) {
+      elements.btnShareKeepsake.addEventListener('click', () => {
+        elements.keepsakeCanvas.toBlob(async (blob) => {
+          if (!blob) return;
+          try {
+            const file = new File([blob], 'Sai_Baba_Blessing.png', { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: 'Sri Sai Baba Divine Blessing',
+                text: currentKeepsakeData ? `"${currentKeepsakeData.quote}" — Om Sai Ram` : 'Om Sai Ram',
+                files: [file]
+              });
+            } else {
+              elements.btnDownloadKeepsake.click();
+            }
+          } catch (err) {
+            console.warn("Share failed:", err);
+            elements.btnDownloadKeepsake.click();
+          }
+        });
+      });
+    }
+
+    // Tactile Apple/Linear Cursor Spotlight Follower
+    document.addEventListener('mousemove', (e) => {
+      document.querySelectorAll('.spotlight-card').forEach(card => {
+        const rect = card.getBoundingClientRect();
+        if (
+          e.clientX >= rect.left - 60 &&
+          e.clientX <= rect.right + 60 &&
+          e.clientY >= rect.top - 60 &&
+          e.clientY <= rect.bottom + 60
+        ) {
+          card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+          card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        }
+      });
+    });
   }
 
   // ==========================================================================
